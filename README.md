@@ -28,7 +28,7 @@ To run the project locally:
 1. Clone the repository:
 
 ```terminal
-git clone https://github.com/ugpec79/Sentimental_Analysis_Generator
+git clone https://github.com/ugpec79/Sentimental_Analysis_Generator.git
 ```
 - Navigate to project directory.
 ```terminal
