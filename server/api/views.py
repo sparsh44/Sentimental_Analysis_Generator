@@ -203,6 +203,23 @@ def PreProcessTheData():
     df3.Body = preprocess(df3.Body)
     df3 = df3.dropna()
     
+    df4 = pd.read_excel("Jagran_Punjab.xlsx")
+    df4 = df4[~df4['Body'].apply(lambda x: isinstance(x, (float, int)))]
+    df4.Body = preprocess(df4.Body)
+    def remove_punjab_event(row):
+        try:
+            index_of_edited_by = row.find("punjab event directly impact life")
+
+            if index_of_edited_by != -1:
+                modified_text = row[index_of_edited_by+34:]
+                return modified_text
+            else:
+                return row
+        except:
+            return ""
+    df4.Body = df4.Body.apply(lambda x: remove_punjab_event(x))
+    df4 = df4.dropna()
+
     df5 = pd.read_excel("News18_Punjab.xlsx")
     df5 = df5[~df5['Body'].apply(lambda x: isinstance(x, (float, int)))]
     df5 = df5[~(df5['Body'].str.contains('dear subscriber', case=False))]
@@ -217,13 +234,29 @@ def PreProcessTheData():
     df6.Body = preprocess(df6.Body)
     df6 = df6.dropna()
 
-    df7 = pd.concat([df, df2, df3, df5, df6], ignore_index=True, axis=0, join='outer')
-    df7["Cat"]=df7["Body"].apply(lambda x:classification(str(x)))
-    df7["Sentiment"] = df7.Body.apply(lambda x: sentiment(str(x)))
-    
-    df7.shape
+    df7 = pd.read_excel("IndiaToday_Chandigarh.xlsx")
+    df7 = df7[~df7['Body'].apply(lambda x: isinstance(x, (float, int)))]
+    def remove_also_read(row):
+        try:
+            index_of_edited_by = row.find("ALSO READ")
+
+            if index_of_edited_by != -1:
+                modified_text = row[:index_of_edited_by]
+                return modified_text
+            else:
+                return row
+        except:
+            return ""
+    df7.Body = df7.Body.apply(lambda x: remove_also_read(x)) 
+    df7.Body = preprocess(df.Body)
+    df7.dropna(inplace=True)
+
+    df8 = pd.concat([df, df2, df3, df4, df5, df6, df7], ignore_index=True, axis=0, join='outer')
+    df8["Cat"]=df8["Body"].apply(lambda x:classification(str(x)))
+    df8["Sentiment"] = df8.Body.apply(lambda x: sentiment(str(x)))
+
     file_name = "Final_Prepped_Data.xlsx"
-    df7.to_excel(file_name, index=False)
+    df8.to_excel(file_name, index=False)
     
        
 
