@@ -1,13 +1,8 @@
-from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
-import json
 import csv
 import requests
 from bs4 import BeautifulSoup
-import subprocess
-from api import Aajtak_Video
-from api import IndianExpress_Video
-from api import ZeeNews_Video
+from api import Aajtak_Video, IndianExpress_Video, ZeeNews_Video
 import threading
 import time
 import xlsxwriter
@@ -17,28 +12,29 @@ import re
 import nltk
 from nltk.tokenize import ToktokTokenizer
 import spacy
-import nltk
 from deep_translator import GoogleTranslator
 from keras.models import load_model
 from transformers import TFDistilBertModel
 from keras.preprocessing.sequence import pad_sequences
 from transformers import DistilBertTokenizer
-from keras.preprocessing.sequence import pad_sequences
 import numpy as np
-from transformers import AutoModelForSequenceClassification
-from transformers import TFAutoModelForSequenceClassification
-from transformers import AutoTokenizer
-import numpy as np
+from transformers import AutoModelForSequenceClassification, TFAutoModelForSequenceClassification, AutoTokenizer
 from scipy.special import softmax
 import csv
-import urllib.request
 import pandas as pd
 import torch
-
 import urllib.request
 from urllib.request import urlopen
 import ssl
-import json
+from crawlers.News18 import News18
+from crawlers.IndiaTv import IndiaTv
+from crawlers.IndiaToday import IndiaToday
+from crawlers.News18Punj import News18Punj
+from crawlers.JagranChandigarh import JagranChandigarh
+from crawlers.AajTak import AajTak
+from crawlers.IndianExpressVideo import IndianExpressVideo
+from crawlers.AajTakVideo import AajTakVideo
+from crawlers.IndiaToday_Chandigarh import IndiaToday_Chandigarh
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
@@ -260,846 +256,846 @@ def PreProcessTheData():
     
        
 
-def News18():
-    print("News 18")
-    workbook=xlsxwriter.Workbook('News18.xlsx')
-    worksheet=workbook.add_worksheet()
-    row=0
-    column=0
-    worksheet.write(row,column,"Heading")
-    worksheet.write(row,column+1,"Body")
-    worksheet.write(row,column+2,"Category")
-    worksheet.write(row,column+3,"URL")
-    row+=1
-    HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
-    r=requests.get('https://www.news18.com', headers=HEADERS)
-    urls_to_visit=[]
-    unique_urls={}
-    count=0
-    try:
-        if(r.status_code==200):
-            soup=BeautifulSoup(r.text, 'html.parser')
+# def News18():
+#     print("News 18")
+#     workbook=xlsxwriter.Workbook('News18.xlsx')
+#     worksheet=workbook.add_worksheet()
+#     row=0
+#     column=0
+#     worksheet.write(row,column,"Heading")
+#     worksheet.write(row,column+1,"Body")
+#     worksheet.write(row,column+2,"Category")
+#     worksheet.write(row,column+3,"URL")
+#     row+=1
+#     HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
+#     r=requests.get('https://www.news18.com', headers=HEADERS)
+#     urls_to_visit=[]
+#     unique_urls={}
+#     count=0
+#     try:
+#         if(r.status_code==200):
+#             soup=BeautifulSoup(r.text, 'html.parser')
         
-            for url in soup.findAll('a'):
-                try:
-                    if(url.has_attr('href')):
-                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
-                            if(url['href'][0]=='/' and "https://www.news18.com"+url['href'] not in unique_urls.keys()):
-                                unique_urls["https://www.news18.com"+url['href']]=True
-                                urls_to_visit.append("https://www.news18.com"+url['href'])
-                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.news18.com" and url['href'] not in unique_urls.keys()):
-                                unique_urls[url['href']]=True
-                                urls_to_visit.append(url['href'])
-                finally:
-                    continue
+#             for url in soup.findAll('a'):
+#                 try:
+#                     if(url.has_attr('href')):
+#                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#                             if(url['href'][0]=='/' and "https://www.news18.com"+url['href'] not in unique_urls.keys()):
+#                                 unique_urls["https://www.news18.com"+url['href']]=True
+#                                 urls_to_visit.append("https://www.news18.com"+url['href'])
+#                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.news18.com" and url['href'] not in unique_urls.keys()):
+#                                 unique_urls[url['href']]=True
+#                                 urls_to_visit.append(url['href'])
+#                 finally:
+#                     continue
 
 
-        while(urls_to_visit and count<20):
-                urltoVisit=urls_to_visit[0]
-                print(count)
-                print(urltoVisit)
-                urls_to_visit.pop(0)
-                if(urltoVisit[0]=='h' and (["tags","tag", "livetv", "videos", "web-stories", "astrology"] not in urltoVisit.split("/"))):
-                    try:
+#         while(urls_to_visit and count<20):
+#                 urltoVisit=urls_to_visit[0]
+#                 print(count)
+#                 print(urltoVisit)
+#                 urls_to_visit.pop(0)
+#                 if(urltoVisit[0]=='h' and (["tags","tag", "livetv", "videos", "web-stories", "astrology"] not in urltoVisit.split("/"))):
+#                     try:
                         
-                        r=requests.get(urltoVisit, headers=HEADERS)
-                        if(r.status_code==200):
-                            soup=BeautifulSoup(r.text, 'html.parser')
-                            for url in soup.findAll('a'):
-                                try:
-                                    if(url.has_attr('href')):
-                                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
-                                            if(url['href'][0]=='/' and "https://www.news18.com"+url['href'] not in unique_urls.keys()):
-                                                unique_urls["https://www.news18.com"+url['href']]=True
-                                                urls_to_visit.append("https://www.news18.com"+url['href'])
-                                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.news18.com" and url['href'] not in unique_urls.keys()):
-                                                unique_urls[url['href']]=True
-                                                urls_to_visit.append(url['href'])
-                                finally:
-                                    continue
+#                         r=requests.get(urltoVisit, headers=HEADERS)
+#                         if(r.status_code==200):
+#                             soup=BeautifulSoup(r.text, 'html.parser')
+#                             for url in soup.findAll('a'):
+#                                 try:
+#                                     if(url.has_attr('href')):
+#                                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#                                             if(url['href'][0]=='/' and "https://www.news18.com"+url['href'] not in unique_urls.keys()):
+#                                                 unique_urls["https://www.news18.com"+url['href']]=True
+#                                                 urls_to_visit.append("https://www.news18.com"+url['href'])
+#                                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.news18.com" and url['href'] not in unique_urls.keys()):
+#                                                 unique_urls[url['href']]=True
+#                                                 urls_to_visit.append(url['href'])
+#                                 finally:
+#                                     continue
                             
-                            if(soup.find('h1', {'class':'article_heading1'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'})or soup.find('html',{'lang':'en-uk'}))):
-                                heading_title=soup.find('h1', {'class':'article_heading1'})
+#                             if(soup.find('h1', {'class':'article_heading1'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'})or soup.find('html',{'lang':'en-uk'}))):
+#                                 heading_title=soup.find('h1', {'class':'article_heading1'})
                                 
                         
                                 
-                                if(soup.find('div', {'id':'article_ContentWrap'}).findAll('p')):
+#                                 if(soup.find('div', {'id':'article_ContentWrap'}).findAll('p')):
                                 
                                     
-                                    heading_desc=soup.find('div', {'id':'article_ContentWrap'}).findAll('p')
-                                    news=""
-                                    for text in heading_desc:
-                                        news+=text.text
-                                    worksheet.write(row,column,heading_title.text)
-                                    worksheet.write(row,column+1,news)
-                                    worksheet.write(row,column+2,urltoVisit.split("/")[3])
-                                    worksheet.write(row,column+3,urltoVisit)
+#                                     heading_desc=soup.find('div', {'id':'article_ContentWrap'}).findAll('p')
+#                                     news=""
+#                                     for text in heading_desc:
+#                                         news+=text.text
+#                                     worksheet.write(row,column,heading_title.text)
+#                                     worksheet.write(row,column+1,news)
+#                                     worksheet.write(row,column+2,urltoVisit.split("/")[3])
+#                                     worksheet.write(row,column+3,urltoVisit)
                                 
-                                    row+=1
+#                                     row+=1
                                     
-                                    count+=1
-                    finally:
-                        continue        
+#                                     count+=1
+#                     finally:
+#                         continue        
             
-    finally:
-        print("News18 Finished")
-        workbook.close()
+#     finally:
+#         print("News18 Finished")
+#         workbook.close()
         
       
         
         
-def IndiaTv():
-    print("India Tv")
-    workbook=xlsxwriter.Workbook('IndiaTv.xlsx')
-    worksheet=workbook.add_worksheet()
-    row=0
-    column=0
-    worksheet.write(row,column,"Heading")
-    worksheet.write(row,column+1,"Body")
-    worksheet.write(row,column+2,"Category")
-    worksheet.write(row,column+3,"URL")
-    row+=1
-    HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
-    r=requests.get('https://www.indiatvnews.com', headers=HEADERS)
-    urls_to_visit=[]
-    unique_urls={}
-    count=0
-    try:
-        if(r.status_code==200):
-            soup=BeautifulSoup(r.text, 'html.parser')
-            for url in soup.findAll('a'):
-                try:
-                    if(url.has_attr('href')):
-                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
-                            if(url['href'][0]=='/' and "https://www.indiatvnews.com"+url['href'] not in unique_urls.keys()):
-                                unique_urls["https://www.indiatvnews.com"+url['href']]=True
-                                urls_to_visit.append("https://www.indiatvnews.com"+url['href'])
-                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatvnews.com" and url['href'] not in unique_urls.keys()):
-                                unique_urls[url['href']]=True
-                                urls_to_visit.append(url['href'])
-                finally:
-                    continue
-        while(urls_to_visit and count<20):
-                urltoVisit=urls_to_visit[0]
+# def IndiaTv():
+#     print("India Tv")
+#     workbook=xlsxwriter.Workbook('IndiaTv.xlsx')
+#     worksheet=workbook.add_worksheet()
+#     row=0
+#     column=0
+#     worksheet.write(row,column,"Heading")
+#     worksheet.write(row,column+1,"Body")
+#     worksheet.write(row,column+2,"Category")
+#     worksheet.write(row,column+3,"URL")
+#     row+=1
+#     HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
+#     r=requests.get('https://www.indiatvnews.com', headers=HEADERS)
+#     urls_to_visit=[]
+#     unique_urls={}
+#     count=0
+#     try:
+#         if(r.status_code==200):
+#             soup=BeautifulSoup(r.text, 'html.parser')
+#             for url in soup.findAll('a'):
+#                 try:
+#                     if(url.has_attr('href')):
+#                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#                             if(url['href'][0]=='/' and "https://www.indiatvnews.com"+url['href'] not in unique_urls.keys()):
+#                                 unique_urls["https://www.indiatvnews.com"+url['href']]=True
+#                                 urls_to_visit.append("https://www.indiatvnews.com"+url['href'])
+#                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatvnews.com" and url['href'] not in unique_urls.keys()):
+#                                 unique_urls[url['href']]=True
+#                                 urls_to_visit.append(url['href'])
+#                 finally:
+#                     continue
+#         while(urls_to_visit and count<20):
+#                 urltoVisit=urls_to_visit[0]
                 
-                urls_to_visit.pop(0)
-                if(urltoVisit[0]=='h' and (["tags","tag", "livetv?utm_source=mobiletophead&amp;utm_campaign=livetvlink", "video", "news-podcasts", "lifestyle","astrology", "web-stories"] not in urltoVisit.split("/"))):
-                    try:
-                        r=requests.get(urltoVisit, headers=HEADERS)
-                        if(r.status_code==200):
-                            soup=BeautifulSoup(r.text, 'html.parser')
-                            for url in soup.findAll('a'):
-                                try:
-                                    if(url.has_attr('href')):
-                                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
-                                            if(url['href'][0]=='/' and "https://www.indiatvnews.com"+url['href'] not in unique_urls.keys()):
-                                                unique_urls["https://www.indiatvnews.com"+url['href']]=True
-                                                urls_to_visit.append("https://www.indiatvnews.com"+url['href'])
-                                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatvnews.com" and url['href'] not in unique_urls.keys()):
-                                                unique_urls[url['href']]=True
-                                                urls_to_visit.append(url['href'])
-                                finally:
-                                    continue
+#                 urls_to_visit.pop(0)
+#                 if(urltoVisit[0]=='h' and (["tags","tag", "livetv?utm_source=mobiletophead&amp;utm_campaign=livetvlink", "video", "news-podcasts", "lifestyle","astrology", "web-stories"] not in urltoVisit.split("/"))):
+#                     try:
+#                         r=requests.get(urltoVisit, headers=HEADERS)
+#                         if(r.status_code==200):
+#                             soup=BeautifulSoup(r.text, 'html.parser')
+#                             for url in soup.findAll('a'):
+#                                 try:
+#                                     if(url.has_attr('href')):
+#                                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#                                             if(url['href'][0]=='/' and "https://www.indiatvnews.com"+url['href'] not in unique_urls.keys()):
+#                                                 unique_urls["https://www.indiatvnews.com"+url['href']]=True
+#                                                 urls_to_visit.append("https://www.indiatvnews.com"+url['href'])
+#                                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatvnews.com" and url['href'] not in unique_urls.keys()):
+#                                                 unique_urls[url['href']]=True
+#                                                 urls_to_visit.append(url['href'])
+#                                 finally:
+#                                     continue
                             
-                            if(soup.find('div', {'class':'article-title'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'})or soup.find('html',{'lang':'en-uk'})) ):
-                                heading_title=soup.find('div', {'class':'article-title'}).find('h1')
+#                             if(soup.find('div', {'class':'article-title'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'})or soup.find('html',{'lang':'en-uk'})) ):
+#                                 heading_title=soup.find('div', {'class':'article-title'}).find('h1')
                                 
-                                if(soup.find('div', {'id':'content'}).findAll('p')):
+#                                 if(soup.find('div', {'id':'content'}).findAll('p')):
                                
-                                    heading_desc=soup.find('div', {'id':'content'}).findAll('p')
-                                    news=""
-                                    for i in range(len(heading_desc)-4):
+#                                     heading_desc=soup.find('div', {'id':'content'}).findAll('p')
+#                                     news=""
+#                                     for i in range(len(heading_desc)-4):
                                        
-                                        news+=heading_desc[i].text
-                                    worksheet.write(row,column,heading_title.text)
-                                    worksheet.write(row,column+1,news)
-                                    if(urltoVisit.split("/")[3]!='news'):
-                                        worksheet.write(row,column+2,urltoVisit.split("/")[4])
-                                    else:
-                                        worksheet.write(row,column+2,urltoVisit.split("/")[3])
-                                    worksheet.write(row,column+3,urltoVisit)
+#                                         news+=heading_desc[i].text
+#                                     worksheet.write(row,column,heading_title.text)
+#                                     worksheet.write(row,column+1,news)
+#                                     if(urltoVisit.split("/")[3]!='news'):
+#                                         worksheet.write(row,column+2,urltoVisit.split("/")[4])
+#                                     else:
+#                                         worksheet.write(row,column+2,urltoVisit.split("/")[3])
+#                                     worksheet.write(row,column+3,urltoVisit)
                               
-                                    row+=1
+#                                     row+=1
                                     
-                                    count+=1
-                    finally:
-                        continue        
+#                                     count+=1
+#                     finally:
+#                         continue        
             
         
-    finally:
-        print("IndiaTv finished")
-        workbook.close()     
+#     finally:
+#         print("IndiaTv finished")
+#         workbook.close()     
 
-def IndiaToday():
-    print("India Today")
-    workbook=xlsxwriter.Workbook('IndiaToday.xlsx')
-    worksheet=workbook.add_worksheet()
-    row=0
-    column=0
-    worksheet.write(row,column,"Heading")
-    worksheet.write(row,column+1,"Body")
-    worksheet.write(row,column+2,"Category")
-    worksheet.write(row,column+3,"URL")
-    row+=1
-    HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
-    r=requests.get('https://www.indiatoday.in', headers=HEADERS)
-    urls_to_visit=[]
-    unique_urls={}
-    count=0
-    try:
-        if(r.status_code==200):
-            soup=BeautifulSoup(r.text, 'html.parser')
-            for url in soup.findAll('a'):
-                try:
-                    if(url.has_attr('href')):
-                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
-                            if(url['href'][0]=='/' and "https://www.indiatoday.in"+url['href'] not in unique_urls.keys()):
-                                unique_urls["https://www.indiatoday.in"+url['href']]=True
-                                urls_to_visit.append("https://www.indiatoday.in"+url['href'])
-                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatoday.in" and url['href'] not in unique_urls.keys()):
-                                unique_urls[url['href']]=True
-                                urls_to_visit.append(url['href'])
-                finally:
-                    continue
-        while(urls_to_visit and count<20):
-                urltoVisit=urls_to_visit[0]
-                urls_to_visit.pop(0)
+# def IndiaToday():
+#     print("India Today")
+#     workbook=xlsxwriter.Workbook('IndiaToday.xlsx')
+#     worksheet=workbook.add_worksheet()
+#     row=0
+#     column=0
+#     worksheet.write(row,column,"Heading")
+#     worksheet.write(row,column+1,"Body")
+#     worksheet.write(row,column+2,"Category")
+#     worksheet.write(row,column+3,"URL")
+#     row+=1
+#     HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
+#     r=requests.get('https://www.indiatoday.in', headers=HEADERS)
+#     urls_to_visit=[]
+#     unique_urls={}
+#     count=0
+#     try:
+#         if(r.status_code==200):
+#             soup=BeautifulSoup(r.text, 'html.parser')
+#             for url in soup.findAll('a'):
+#                 try:
+#                     if(url.has_attr('href')):
+#                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#                             if(url['href'][0]=='/' and "https://www.indiatoday.in"+url['href'] not in unique_urls.keys()):
+#                                 unique_urls["https://www.indiatoday.in"+url['href']]=True
+#                                 urls_to_visit.append("https://www.indiatoday.in"+url['href'])
+#                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatoday.in" and url['href'] not in unique_urls.keys()):
+#                                 unique_urls[url['href']]=True
+#                                 urls_to_visit.append(url['href'])
+#                 finally:
+#                     continue
+#         while(urls_to_visit and count<20):
+#                 urltoVisit=urls_to_visit[0]
+#                 urls_to_visit.pop(0)
            
-                if(urltoVisit[0]=='h' and (["tags","tag", "livetv", "video"] not in urltoVisit.split("/"))):
-                    try:
-                        r=requests.get(urltoVisit, headers=HEADERS)
-                        if(r.status_code==200):
-                            soup=BeautifulSoup(r.text, 'html.parser')
-                            for url in soup.findAll('a'):
-                                try:
-                                    if(url.has_attr('href')):
-                                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
-                                            if(url['href'][0]=='/' and "https://www.indiatoday.in"+url['href'] not in unique_urls.keys()):
-                                                unique_urls["https://www.indiatoday.in"+url['href']]=True
-                                                urls_to_visit.append("https://www.indiatoday.in"+url['href'])
-                                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatoday.in" and url['href'] not in unique_urls.keys()):
-                                                unique_urls[url['href']]=True
-                                                urls_to_visit.append(url['href'])
-                                finally:
-                                    continue
+#                 if(urltoVisit[0]=='h' and (["tags","tag", "livetv", "video"] not in urltoVisit.split("/"))):
+#                     try:
+#                         r=requests.get(urltoVisit, headers=HEADERS)
+#                         if(r.status_code==200):
+#                             soup=BeautifulSoup(r.text, 'html.parser')
+#                             for url in soup.findAll('a'):
+#                                 try:
+#                                     if(url.has_attr('href')):
+#                                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#                                             if(url['href'][0]=='/' and "https://www.indiatoday.in"+url['href'] not in unique_urls.keys()):
+#                                                 unique_urls["https://www.indiatoday.in"+url['href']]=True
+#                                                 urls_to_visit.append("https://www.indiatoday.in"+url['href'])
+#                                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatoday.in" and url['href'] not in unique_urls.keys()):
+#                                                 unique_urls[url['href']]=True
+#                                                 urls_to_visit.append(url['href'])
+#                                 finally:
+#                                     continue
                             
-                            if(soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_story__content__body__qCd5E story__content__body widgetgap'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'})or soup.find('html',{'lang':'en-uk'}))):
-                                heading_title=soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_story__content__body__qCd5E story__content__body widgetgap'}).find('h1')
-                                if(soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_description__fq_4S description'}).findAll('p')):
+#                             if(soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_story__content__body__qCd5E story__content__body widgetgap'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'})or soup.find('html',{'lang':'en-uk'}))):
+#                                 heading_title=soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_story__content__body__qCd5E story__content__body widgetgap'}).find('h1')
+#                                 if(soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_description__fq_4S description'}).findAll('p')):
                             
                                     
                                     
-                                    heading_desc=soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_description__fq_4S description'}).findAll('p')
-                                    news=""
-                                    for text in heading_desc:
+#                                     heading_desc=soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_description__fq_4S description'}).findAll('p')
+#                                     news=""
+#                                     for text in heading_desc:
                                         
-                                        news+=text.text
+#                                         news+=text.text
                         
-                                    worksheet.write(row,column,heading_title.text)
-                                    worksheet.write(row,column+1,news)
-                                    if(urltoVisit.split("/")[3]!='cities'):
-                                        worksheet.write(row,column+2,urltoVisit.split("/")[3])
-                                    else:
-                                        worksheet.write(row,column+2,"india")
-                                    worksheet.write(row,column+3,urltoVisit)
+#                                     worksheet.write(row,column,heading_title.text)
+#                                     worksheet.write(row,column+1,news)
+#                                     if(urltoVisit.split("/")[3]!='cities'):
+#                                         worksheet.write(row,column+2,urltoVisit.split("/")[3])
+#                                     else:
+#                                         worksheet.write(row,column+2,"india")
+#                                     worksheet.write(row,column+3,urltoVisit)
                               
-                                    row+=1
+#                                     row+=1
                                     
-                                    count+=1
-                    finally:
-                        continue        
+#                                     count+=1
+#                     finally:
+#                         continue        
             
         
-    finally:
-        print("India today finished")
-        workbook.close()
+#     finally:
+#         print("India today finished")
+#         workbook.close()
     
 
-def News18Punj():
-    print("New 18 Punjab")
-    workbook=xlsxwriter.Workbook('News18_Punjab.xlsx')
-    worksheet=workbook.add_worksheet()
-    row=0
-    column=0
-    worksheet.write(row,column,"Heading")
-    worksheet.write(row,column+1,"Body")
-    worksheet.write(row,column+2,"Category")
-    worksheet.write(row,column+3,"URL")
-    row+=1
-    HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
-    r=requests.get('https://punjab.news18.com', headers=HEADERS)
-    urls_to_visit=[]
-    unique_urls={}
-    count=0
-    try:
+# def News18Punj():
+#     print("New 18 Punjab")
+#     workbook=xlsxwriter.Workbook('News18_Punjab.xlsx')
+#     worksheet=workbook.add_worksheet()
+#     row=0
+#     column=0
+#     worksheet.write(row,column,"Heading")
+#     worksheet.write(row,column+1,"Body")
+#     worksheet.write(row,column+2,"Category")
+#     worksheet.write(row,column+3,"URL")
+#     row+=1
+#     HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
+#     r=requests.get('https://punjab.news18.com', headers=HEADERS)
+#     urls_to_visit=[]
+#     unique_urls={}
+#     count=0
+#     try:
         
-        if(r.status_code==200):
-            r.encoding = 'utf-8'
-            soup=BeautifulSoup(r.text, 'html.parser')
+#         if(r.status_code==200):
+#             r.encoding = 'utf-8'
+#             soup=BeautifulSoup(r.text, 'html.parser')
         
-            for url in soup.findAll('a'):
-                try:
-                    if(url.has_attr('href')):
-                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#             for url in soup.findAll('a'):
+#                 try:
+#                     if(url.has_attr('href')):
+#                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
                         
-                            if(url['href'][0]=='/' and "https://punjab.news18.com"+url['href'] not in unique_urls.keys()):
-                                unique_urls["https://punjab.news18.com"+url['href']]=True
-                                urls_to_visit.append("https://punjab.news18.com"+url['href'])
-                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="punjab.news18.com" and url['href'] not in unique_urls.keys()):
-                                unique_urls[url['href']]=True
-                                urls_to_visit.append(url['href'])
-                finally:
-                    continue
+#                             if(url['href'][0]=='/' and "https://punjab.news18.com"+url['href'] not in unique_urls.keys()):
+#                                 unique_urls["https://punjab.news18.com"+url['href']]=True
+#                                 urls_to_visit.append("https://punjab.news18.com"+url['href'])
+#                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="punjab.news18.com" and url['href'] not in unique_urls.keys()):
+#                                 unique_urls[url['href']]=True
+#                                 urls_to_visit.append(url['href'])
+#                 finally:
+#                     continue
 
 
-        while(urls_to_visit and count<20):
-                urltoVisit=urls_to_visit[0]
+#         while(urls_to_visit and count<20):
+#                 urltoVisit=urls_to_visit[0]
                 
-                urls_to_visit.pop(0)
-                print(count)
-                print(urltoVisit)
-                if(urltoVisit[0]=='h' and (["tags","tag", "livetv", "videos", "web-stories", "astrology"] not in urltoVisit.split("/"))):
-                    try:
+#                 urls_to_visit.pop(0)
+#                 print(count)
+#                 print(urltoVisit)
+#                 if(urltoVisit[0]=='h' and (["tags","tag", "livetv", "videos", "web-stories", "astrology"] not in urltoVisit.split("/"))):
+#                     try:
                         
-                        r=requests.get(urltoVisit, headers=HEADERS)
-                        r.encoding = 'utf-8'
-                        if(r.status_code==200):
-                            soup=BeautifulSoup(r.text, 'html.parser')
-                            for url in soup.findAll('a'):
-                                try:
-                                    if(url.has_attr('href')):
-                                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
-                                            if(url['href'][0]=='/' and "https://punjab.news18.com"+url['href'] not in unique_urls.keys()):
-                                                unique_urls["https://punjab.news18.com"+url['href']]=True
-                                                urls_to_visit.append("https://punjab.news18.com"+url['href'])
-                                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="punjab.news18.com" and url['href'] not in unique_urls.keys()):
-                                                unique_urls[url['href']]=True
-                                                urls_to_visit.append(url['href'])
-                                finally:
-                                    continue
+#                         r=requests.get(urltoVisit, headers=HEADERS)
+#                         r.encoding = 'utf-8'
+#                         if(r.status_code==200):
+#                             soup=BeautifulSoup(r.text, 'html.parser')
+#                             for url in soup.findAll('a'):
+#                                 try:
+#                                     if(url.has_attr('href')):
+#                                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#                                             if(url['href'][0]=='/' and "https://punjab.news18.com"+url['href'] not in unique_urls.keys()):
+#                                                 unique_urls["https://punjab.news18.com"+url['href']]=True
+#                                                 urls_to_visit.append("https://punjab.news18.com"+url['href'])
+#                                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="punjab.news18.com" and url['href'] not in unique_urls.keys()):
+#                                                 unique_urls[url['href']]=True
+#                                                 urls_to_visit.append(url['href'])
+#                                 finally:
+#                                     continue
                             
-                            if(soup.find('h1', { 'class':"tphd"}) and (soup.find('html',{'lang':'pa'}))):
+#                             if(soup.find('h1', { 'class':"tphd"}) and (soup.find('html',{'lang':'pa'}))):
                                 
-                                heading_title=soup.find('h1', { 'class':"tphd"})
-                                heading_title=heading_title.text
-                                print(heading_title)
-                                if(soup.find('div', {'id':'main-content'}).findAll('p')):
+#                                 heading_title=soup.find('h1', { 'class':"tphd"})
+#                                 heading_title=heading_title.text
+#                                 print(heading_title)
+#                                 if(soup.find('div', {'id':'main-content'}).findAll('p')):
                                     
                                 
-                                    heading_desc=soup.find('div', {'id':'main-content'}).findAll('p')
-                                    print("yes")
-                                    news=""
-                                    for text in heading_desc:
+#                                     heading_desc=soup.find('div', {'id':'main-content'}).findAll('p')
+#                                     print("yes")
+#                                     news=""
+#                                     for text in heading_desc:
                                 
-                                        news+=text.text
-                                    news=news.replace("\xa0","")
-                                    news=news.replace("\n","")
-                                    heading_title=heading_title.replace("\xa0","")
-                                    heading_title=heading_title.replace("\n","")
-                                    result=GoogleTranslator(source='auto', target='en').translate(news[0:2200])
-                                    headline=GoogleTranslator(source='auto', target='en').translate(heading_title)
-                                    print(result)
-                                    print(headline)
+#                                         news+=text.text
+#                                     news=news.replace("\xa0","")
+#                                     news=news.replace("\n","")
+#                                     heading_title=heading_title.replace("\xa0","")
+#                                     heading_title=heading_title.replace("\n","")
+#                                     result=GoogleTranslator(source='auto', target='en').translate(news[0:2200])
+#                                     headline=GoogleTranslator(source='auto', target='en').translate(heading_title)
+#                                     print(result)
+#                                     print(headline)
                                     
-                                    worksheet.write(row,column,headline)
-                                    worksheet.write(row,column+1,result)
-                                    worksheet.write(row,column+2,urltoVisit.split("/")[3])
-                                    worksheet.write(row,column+3,urltoVisit)
+#                                     worksheet.write(row,column,headline)
+#                                     worksheet.write(row,column+1,result)
+#                                     worksheet.write(row,column+2,urltoVisit.split("/")[3])
+#                                     worksheet.write(row,column+3,urltoVisit)
                                 
-                                    row+=1
+#                                     row+=1
                                 
-                                    count+=1
-                    finally:
-                        continue        
+#                                     count+=1
+#                     finally:
+#                         continue        
             
         
-    finally:
-        print("Punjabi Done")
-        workbook.close()
+#     finally:
+#         print("Punjabi Done")
+#         workbook.close()
         
-def AajTak():
-    print("AajTak")
-    workbook=xlsxwriter.Workbook('AajTak.xlsx')
-    worksheet=workbook.add_worksheet()
-    row=0
-    column=0
-    worksheet.write(row,column,"Heading")
-    worksheet.write(row,column+1,"Body")
-    worksheet.write(row,column+2,"Category")
-    worksheet.write(row,column+3,"URL")
-    row+=1
-    HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
-    r=requests.get('https://www.aajtak.in', headers=HEADERS)
-    urls_to_visit=[]
-    unique_urls={}
-    count=0
-    try:
-        if(r.status_code==200):
-            soup=BeautifulSoup(r.text, 'html.parser')
+# def AajTak():
+#     print("AajTak")
+#     workbook=xlsxwriter.Workbook('AajTak.xlsx')
+#     worksheet=workbook.add_worksheet()
+#     row=0
+#     column=0
+#     worksheet.write(row,column,"Heading")
+#     worksheet.write(row,column+1,"Body")
+#     worksheet.write(row,column+2,"Category")
+#     worksheet.write(row,column+3,"URL")
+#     row+=1
+#     HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
+#     r=requests.get('https://www.aajtak.in', headers=HEADERS)
+#     urls_to_visit=[]
+#     unique_urls={}
+#     count=0
+#     try:
+#         if(r.status_code==200):
+#             soup=BeautifulSoup(r.text, 'html.parser')
            
-            for url in soup.findAll('a'):
-                try:
-                    if(url.has_attr('href')):
-                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#             for url in soup.findAll('a'):
+#                 try:
+#                     if(url.has_attr('href')):
+#                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
                            
-                            if(url['href'][0]=='/' and "https://www.aajtak.in"+url['href'] not in unique_urls.keys()):
-                                unique_urls["https://www.aajtak.in"+url['href']]=True
-                                urls_to_visit.append("https://www.aajtak.in"+url['href'])
-                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.aajtak.in" and url['href'] not in unique_urls.keys()):
-                                unique_urls[url['href']]=True
-                                urls_to_visit.append(url['href'])
-                finally:
-                    continue
-        while(urls_to_visit and count<20):
-                urltoVisit=urls_to_visit[0]
+#                             if(url['href'][0]=='/' and "https://www.aajtak.in"+url['href'] not in unique_urls.keys()):
+#                                 unique_urls["https://www.aajtak.in"+url['href']]=True
+#                                 urls_to_visit.append("https://www.aajtak.in"+url['href'])
+#                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.aajtak.in" and url['href'] not in unique_urls.keys()):
+#                                 unique_urls[url['href']]=True
+#                                 urls_to_visit.append(url['href'])
+#                 finally:
+#                     continue
+#         while(urls_to_visit and count<20):
+#                 urltoVisit=urls_to_visit[0]
                 
-                urls_to_visit.pop(0)
-                if(urltoVisit[0]=='h' and (["tags","tag", "livetv?utm_source=homepage&utm_campaign=hp_topicon", "video", "news-podcasts", "lifestyle","astrology","visualstories"] not in urltoVisit.split("/"))):
-                    try:
-                        r=requests.get(urltoVisit, headers=HEADERS)
-                        if(r.status_code==200):
-                            soup=BeautifulSoup(r.text, 'html.parser')
-                            for url in soup.findAll('a'):
-                                try:
-                                    if(url.has_attr('href')):
-                                        if(url['href'][0]=='/' and "https://www.aajtak.in"+url['href'] not in unique_urls.keys()):
-                                            unique_urls["https://www.aajtak.in"+url['href']]=True
-                                            urls_to_visit.append("https://www.aajtak.in"+url['href'])
-                                        elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.aajtak.in" and url['href'] not in unique_urls.keys()):
-                                            unique_urls[url['href']]=True
-                                            urls_to_visit.append(url['href'])
-                                finally:
-                                    continue
+#                 urls_to_visit.pop(0)
+#                 if(urltoVisit[0]=='h' and (["tags","tag", "livetv?utm_source=homepage&utm_campaign=hp_topicon", "video", "news-podcasts", "lifestyle","astrology","visualstories"] not in urltoVisit.split("/"))):
+#                     try:
+#                         r=requests.get(urltoVisit, headers=HEADERS)
+#                         if(r.status_code==200):
+#                             soup=BeautifulSoup(r.text, 'html.parser')
+#                             for url in soup.findAll('a'):
+#                                 try:
+#                                     if(url.has_attr('href')):
+#                                         if(url['href'][0]=='/' and "https://www.aajtak.in"+url['href'] not in unique_urls.keys()):
+#                                             unique_urls["https://www.aajtak.in"+url['href']]=True
+#                                             urls_to_visit.append("https://www.aajtak.in"+url['href'])
+#                                         elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.aajtak.in" and url['href'] not in unique_urls.keys()):
+#                                             unique_urls[url['href']]=True
+#                                             urls_to_visit.append(url['href'])
+#                                 finally:
+#                                     continue
                             
-                            if(soup.find('div', {'class':'story-heading'}) and (soup.find('html',{'lang':'hi'}))):
-                                heading_title=soup.find('div', {'class':'story-heading'}).find('h1')
-                                heading_title=heading_title.text
-                                if(soup.find('div', {'class':'story-with-main-sec'}).findAll('p')):
+#                             if(soup.find('div', {'class':'story-heading'}) and (soup.find('html',{'lang':'hi'}))):
+#                                 heading_title=soup.find('div', {'class':'story-heading'}).find('h1')
+#                                 heading_title=heading_title.text
+#                                 if(soup.find('div', {'class':'story-with-main-sec'}).findAll('p')):
                                 
-                                    heading_desc=soup.find('div', {'class':'story-with-main-sec'}).findAll('p')
-                                    news=""
-                                    for i in range(len(heading_desc)-4):
+#                                     heading_desc=soup.find('div', {'class':'story-with-main-sec'}).findAll('p')
+#                                     news=""
+#                                     for i in range(len(heading_desc)-4):
                              
-                                        news+=heading_desc[i].text
-                                    news=news.replace("\xa0","")
-                                    news=news.replace("\n","")
-                                    heading_title=heading_title.replace("\xa0","")
-                                    heading_title=heading_title.replace("\n","")
+#                                         news+=heading_desc[i].text
+#                                     news=news.replace("\xa0","")
+#                                     news=news.replace("\n","")
+#                                     heading_title=heading_title.replace("\xa0","")
+#                                     heading_title=heading_title.replace("\n","")
                                     
-                                    result=GoogleTranslator(source='auto', target='en').translate(news[0:2200])
-                                    headline=GoogleTranslator(source='auto', target='en').translate(heading_title)
+#                                     result=GoogleTranslator(source='auto', target='en').translate(news[0:2200])
+#                                     headline=GoogleTranslator(source='auto', target='en').translate(heading_title)
                                     
-                                    worksheet.write(row,column,headline)
-                                    worksheet.write(row,column+1,result)
-                                    worksheet.write(row,column+2,urltoVisit.split("/")[3])
-                                    worksheet.write(row,column+3,urltoVisit)
-                                    row+=1
-                                    count+=1
-                    finally:
-                        continue        
+#                                     worksheet.write(row,column,headline)
+#                                     worksheet.write(row,column+1,result)
+#                                     worksheet.write(row,column+2,urltoVisit.split("/")[3])
+#                                     worksheet.write(row,column+3,urltoVisit)
+#                                     row+=1
+#                                     count+=1
+#                     finally:
+#                         continue        
             
         
-    finally:
-        print("Aaj Tak Ended")
-        workbook.close()
+#     finally:
+#         print("Aaj Tak Ended")
+#         workbook.close()
     
 
-def AajtakVideo():
-    print("AajTak Video")
-    workbook=xlsxwriter.Workbook('AajTak_Video.xlsx')
-    worksheet=workbook.add_worksheet()
-    row=0
-    column=0
-    worksheet.write(row,column,"Heading")
-    worksheet.write(row,column+1,"VideoText")
-    worksheet.write(row,column+2,"Body")
-    worksheet.write(row,column+3,"URL")
-    row+=1
+# def AajtakVideo():
+#     print("AajTak Video")
+#     workbook=xlsxwriter.Workbook('AajTak_Video.xlsx')
+#     worksheet=workbook.add_worksheet()
+#     row=0
+#     column=0
+#     worksheet.write(row,column,"Heading")
+#     worksheet.write(row,column+1,"VideoText")
+#     worksheet.write(row,column+2,"Body")
+#     worksheet.write(row,column+3,"URL")
+#     row+=1
 
 
-    def fetch_html(url):
-        try:
-            headers = {
-                'User-Agent': 'Mozilla/5.0',
-            }
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                return response.text
-            else:
-                print(
-                    f"Failed to fetch {url}. Status code: {response.status_code}")
-                return None
-        except Exception as e:
-            print(f"An error occurred while fetching {url}: {str(e)}")
-            return None
+#     def fetch_html(url):
+#         try:
+#             headers = {
+#                 'User-Agent': 'Mozilla/5.0',
+#             }
+#             response = requests.get(url, headers=headers)
+#             if response.status_code == 200:
+#                 return response.text
+#             else:
+#                 print(
+#                     f"Failed to fetch {url}. Status code: {response.status_code}")
+#                 return None
+#         except Exception as e:
+#             print(f"An error occurred while fetching {url}: {str(e)}")
+#             return None
 
 
-    def extract_video_links(html_content):
-        video_links = set()  # Use a set to store unique links
-        soup = BeautifulSoup(html_content, 'html.parser')
-        # Find 'a' tags with 'href' attribute
-        video_tags = soup.find_all('a', href=True)
+#     def extract_video_links(html_content):
+#         video_links = set()  # Use a set to store unique links
+#         soup = BeautifulSoup(html_content, 'html.parser')
+#         # Find 'a' tags with 'href' attribute
+#         video_tags = soup.find_all('a', href=True)
 
-        for tag in video_tags:
-            video_url = tag['href']
-            if video_url and video_url.startswith('https://www.aajtak'):
-                video_links.add(video_url)
+#         for tag in video_tags:
+#             video_url = tag['href']
+#             if video_url and video_url.startswith('https://www.aajtak'):
+#                 video_links.add(video_url)
 
-        return list(video_links)
-
-
-    def crawl_website(url, max_links):
-        visited_links = set()
-        to_visit = [url]
-        all_video_links = set()
-
-        while to_visit and len(all_video_links) < max_links:
-            current_url = to_visit.pop(0)
-            if current_url not in visited_links:
-                html_content = fetch_html(current_url)
-                if html_content:
-                    video_links = extract_video_links(html_content)
-                    with open('./aajtak_link.csv', 'a') as f:
-                        for link in video_links:
-                            if "/video/" in link and link not in all_video_links and len(link) > 60:
-                                f.write(link + '\n')
-                                all_video_links.add(link)
-
-                    visited_links.add(current_url)
-                    to_visit.extend(video_links)
+#         return list(video_links)
 
 
-    news_websites = [
-        'https://www.aajtak.in/videos'
-    ]
+#     def crawl_website(url, max_links):
+#         visited_links = set()
+#         to_visit = [url]
+#         all_video_links = set()
 
-    for website in news_websites:
-        crawl_website(website, max_links=1)
+#         while to_visit and len(all_video_links) < max_links:
+#             current_url = to_visit.pop(0)
+#             if current_url not in visited_links:
+#                 html_content = fetch_html(current_url)
+#                 if html_content:
+#                     video_links = extract_video_links(html_content)
+#                     with open('./aajtak_link.csv', 'a') as f:
+#                         for link in video_links:
+#                             if "/video/" in link and link not in all_video_links and len(link) > 60:
+#                                 f.write(link + '\n')
+#                                 all_video_links.add(link)
 
-    print("Crawling completed.")
+#                     visited_links.add(current_url)
+#                     to_visit.extend(video_links)
 
-    csv_file_path = './aajtak_link.csv'
 
-    with open(csv_file_path, 'r') as csv_file:
-        video_links = csv.reader(csv_file)
-        for r in video_links:
-            video_url = r[0]
+#     news_websites = [
+#         'https://www.aajtak.in/videos'
+#     ]
 
-            try:
-                title,video_text,description,url=Aajtak_Video.aajtak(video_url)
-                if(title!=""):
-                    worksheet.write(row,column,title)
-                    worksheet.write(row,column+1,video_text)
-                    worksheet.write(row,column+2,description)
-                    worksheet.write(row,column+3,url)
-                    print(title,video_text,url)
-                    row+=1
-            except Exception as e:
-                print(f"Error processing video URL {video_url}: {str(e)}")
+#     for website in news_websites:
+#         crawl_website(website, max_links=1)
 
-    workbook.close()
-    print("AajtakVieos done")
-    IndianExpressVideo()
+#     print("Crawling completed.")
+
+#     csv_file_path = './aajtak_link.csv'
+
+#     with open(csv_file_path, 'r') as csv_file:
+#         video_links = csv.reader(csv_file)
+#         for r in video_links:
+#             video_url = r[0]
+
+#             try:
+#                 title,video_text,description,url=Aajtak_Video.aajtak(video_url)
+#                 if(title!=""):
+#                     worksheet.write(row,column,title)
+#                     worksheet.write(row,column+1,video_text)
+#                     worksheet.write(row,column+2,description)
+#                     worksheet.write(row,column+3,url)
+#                     print(title,video_text,url)
+#                     row+=1
+#             except Exception as e:
+#                 print(f"Error processing video URL {video_url}: {str(e)}")
+
+#     workbook.close()
+#     print("AajtakVieos done")
+#     IndianExpressVideo()
     
     
-def IndianExpressVideo():
-    print("India Express Vieo")
-    workbook=xlsxwriter.Workbook('IndianExpress_Video.xlsx')
-    worksheet=workbook.add_worksheet()
-    row=0
-    column=0
-    worksheet.write(row,column,"Heading")
-    worksheet.write(row,column+1,"VideoText")
-    worksheet.write(row,column+2,"Body")
-    worksheet.write(row,column+3,"URL")
-    row+=1
+# def IndianExpressVideo():
+#     print("India Express Vieo")
+#     workbook=xlsxwriter.Workbook('IndianExpress_Video.xlsx')
+#     worksheet=workbook.add_worksheet()
+#     row=0
+#     column=0
+#     worksheet.write(row,column,"Heading")
+#     worksheet.write(row,column+1,"VideoText")
+#     worksheet.write(row,column+2,"Body")
+#     worksheet.write(row,column+3,"URL")
+#     row+=1
 
 
-    def fetch_html(url):
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                return response.text
-            else:
-                print(
-                    f"Failed to fetch {url}. Status code: {response.status_code}")
-                return None
-        except Exception as e:
-            print(f"An error occurred while fetching {url}: {str(e)}")
-            return None
+#     def fetch_html(url):
+#         try:
+#             response = requests.get(url)
+#             if response.status_code == 200:
+#                 return response.text
+#             else:
+#                 print(
+#                     f"Failed to fetch {url}. Status code: {response.status_code}")
+#                 return None
+#         except Exception as e:
+#             print(f"An error occurred while fetching {url}: {str(e)}")
+#             return None
 
 
-    def extract_video_links(html_content):
-        video_links = set()  # Use a set to store unique links
-        soup = BeautifulSoup(html_content, 'html.parser')
-        # Find 'a' tags with 'href' attribute
-        video_tags = soup.find_all('a', href=True)
+#     def extract_video_links(html_content):
+#         video_links = set()  # Use a set to store unique links
+#         soup = BeautifulSoup(html_content, 'html.parser')
+#         # Find 'a' tags with 'href' attribute
+#         video_tags = soup.find_all('a', href=True)
 
-        for tag in video_tags:
-            video_url = tag['href']
-            if video_url.startswith('https://indianexpress'):
-                video_links.add(video_url)
+#         for tag in video_tags:
+#             video_url = tag['href']
+#             if video_url.startswith('https://indianexpress'):
+#                 video_links.add(video_url)
 
-        return list(video_links)
+#         return list(video_links)
 
 
-    def crawl_website(url, max_links):
-        visited_links = set()
-        to_visit = [url]
-        all_video_links = set()
+#     def crawl_website(url, max_links):
+#         visited_links = set()
+#         to_visit = [url]
+#         all_video_links = set()
 
-        while to_visit and len(all_video_links) < max_links:
-            current_url = to_visit.pop(0)
-            if current_url not in visited_links:
-                html_content = fetch_html(current_url)
-                if html_content:
-                    video_links = extract_video_links(html_content)
+#         while to_visit and len(all_video_links) < max_links:
+#             current_url = to_visit.pop(0)
+#             if current_url not in visited_links:
+#                 html_content = fetch_html(current_url)
+#                 if html_content:
+#                     video_links = extract_video_links(html_content)
                 
-                    with open('./indianexpress_link.csv', 'a') as f:
-                        for link in video_links:
-                            if "/videos/" in link and link not in all_video_links and len(link) > 60:
-                                f.write(link + '\n')
-                                all_video_links.add(link)
+#                     with open('./indianexpress_link.csv', 'a') as f:
+#                         for link in video_links:
+#                             if "/videos/" in link and link not in all_video_links and len(link) > 60:
+#                                 f.write(link + '\n')
+#                                 all_video_links.add(link)
 
-                    visited_links.add(current_url)
-                    # Add found video links to the queue
-                    to_visit.extend(video_links)
-
-
-    # List of news websites to crawl
-    news_websites = [
-        'https://indianexpress.com/'
-    ]
-
-    for website in news_websites:
-        crawl_website(website, max_links=1)
-
-    print("Crawling completed.")
+#                     visited_links.add(current_url)
+#                     # Add found video links to the queue
+#                     to_visit.extend(video_links)
 
 
-    csv_file_path = './indianexpress_link.csv'
+#     # List of news websites to crawl
+#     news_websites = [
+#         'https://indianexpress.com/'
+#     ]
 
-    with open(csv_file_path, 'r') as csv_file:
-        video_links = csv.reader(csv_file)
-        for r in video_links:
-            if len(r) == 0:
-                continue
-            video_url = r[0]
-            try:
-                title,video_text,description,url=IndianExpress_Video.indianexpress(video_url)
-                if(title!=""):
-                    worksheet.write(row,column,title)
-                    worksheet.write(row,column+1,video_text)
-                    worksheet.write(row,column+2,description)
-                    worksheet.write(row,column+3,url)
-                    print(title,video_text,url)
-                    row+=1
-            except Exception as e:
-                print(f"Error processing video URL {video_url}: {str(e)}")
+#     for website in news_websites:
+#         crawl_website(website, max_links=1)
 
-    workbook.close()
+#     print("Crawling completed.")
 
-    print("IndianExpressDone")
+
+#     csv_file_path = './indianexpress_link.csv'
+
+#     with open(csv_file_path, 'r') as csv_file:
+#         video_links = csv.reader(csv_file)
+#         for r in video_links:
+#             if len(r) == 0:
+#                 continue
+#             video_url = r[0]
+#             try:
+#                 title,video_text,description,url=IndianExpress_Video.indianexpress(video_url)
+#                 if(title!=""):
+#                     worksheet.write(row,column,title)
+#                     worksheet.write(row,column+1,video_text)
+#                     worksheet.write(row,column+2,description)
+#                     worksheet.write(row,column+3,url)
+#                     print(title,video_text,url)
+#                     row+=1
+#             except Exception as e:
+#                 print(f"Error processing video URL {video_url}: {str(e)}")
+
+#     workbook.close()
+
+#     print("IndianExpressDone")
 
 
     
     
-def IndiaToday_Chandigarh():
-    print("IndiaToday Chd")
-    workbook=xlsxwriter.Workbook('IndiaToday_Chandigarh.xlsx')
-    worksheet=workbook.add_worksheet()
-    row=0
-    column=0
-    worksheet.write(row,column,"Heading")
-    worksheet.write(row,column+1,"Body")
-    worksheet.write(row,column+2,"Category")
-    worksheet.write(row,column+3,"URL")
-    row+=1
-    HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
-    r=requests.get('https://www.indiatoday.in/cities/chandigarh-news', headers=HEADERS)
-    urls_to_visit=[]
-    unique_urls={}
-    count=0
-    try:
-        if(r.status_code==200):
-            soup=BeautifulSoup(r.text, 'html.parser')
-            for url in soup.findAll('a'):
-                try:
-                    if(url.has_attr('href')):
-                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
-                            if(url['href'][0]=='/' and "https://www.indiatoday.in/cities/chandigarh"+url['href'] not in unique_urls.keys() and ("chandigarh-news" in url['href'].split("/") or "chandigarh" in url["href"].split("/"))):
-                                unique_urls["https://www.indiatoday.in/cities/chandigarh"+url['href']]=True
-                                urls_to_visit.append("https://www.indiatoday.in/cities/chandigarh"+url['href'])
-                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatoday.in" and url['href'] not in unique_urls.keys() and("chandigarh-news" in url['href'].split("/") or "chandigarh" in url["href"].split("/"))):
-                                unique_urls[url['href']]=True
-                                urls_to_visit.append(url['href'])
-                finally:
-                    continue
-        while(urls_to_visit and count<20):
-                urltoVisit=urls_to_visit[0]
-                print(urltoVisit)
-                print(count)
-                urls_to_visit.pop(0)
+# def IndiaToday_Chandigarh():
+#     print("IndiaToday Chd")
+#     workbook=xlsxwriter.Workbook('IndiaToday_Chandigarh.xlsx')
+#     worksheet=workbook.add_worksheet()
+#     row=0
+#     column=0
+#     worksheet.write(row,column,"Heading")
+#     worksheet.write(row,column+1,"Body")
+#     worksheet.write(row,column+2,"Category")
+#     worksheet.write(row,column+3,"URL")
+#     row+=1
+#     HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
+#     r=requests.get('https://www.indiatoday.in/cities/chandigarh-news', headers=HEADERS)
+#     urls_to_visit=[]
+#     unique_urls={}
+#     count=0
+#     try:
+#         if(r.status_code==200):
+#             soup=BeautifulSoup(r.text, 'html.parser')
+#             for url in soup.findAll('a'):
+#                 try:
+#                     if(url.has_attr('href')):
+#                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#                             if(url['href'][0]=='/' and "https://www.indiatoday.in/cities/chandigarh"+url['href'] not in unique_urls.keys() and ("chandigarh-news" in url['href'].split("/") or "chandigarh" in url["href"].split("/"))):
+#                                 unique_urls["https://www.indiatoday.in/cities/chandigarh"+url['href']]=True
+#                                 urls_to_visit.append("https://www.indiatoday.in/cities/chandigarh"+url['href'])
+#                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatoday.in" and url['href'] not in unique_urls.keys() and("chandigarh-news" in url['href'].split("/") or "chandigarh" in url["href"].split("/"))):
+#                                 unique_urls[url['href']]=True
+#                                 urls_to_visit.append(url['href'])
+#                 finally:
+#                     continue
+#         while(urls_to_visit and count<20):
+#                 urltoVisit=urls_to_visit[0]
+#                 print(urltoVisit)
+#                 print(count)
+#                 urls_to_visit.pop(0)
             
-                if(urltoVisit[0]=='h' and (["tags","tag", "livetv", "video"] not in urltoVisit.split("/"))):
-                    try:
-                        r=requests.get(urltoVisit, headers=HEADERS)
-                        if(r.status_code==200):
-                            soup=BeautifulSoup(r.text, 'html.parser')
-                            with open('a.txt','w') as f:
-                                f.write(r.text)
-                            f.close()
-                            for url in soup.findAll('a'):
-                                try:
-                                    if(url.has_attr('href')):
-                                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
-                                            if(url['href'][0]=='/' and "https://www.indiatoday.in/cities/chandigarh"+url['href'] not in unique_urls.keys() and ("chandigarh-news" in url['href'].split("/") or "chandigarh" in url["href"].split("/"))):
-                                                unique_urls["https://www.indiatoday.in/cities/chandigarh"+url['href']]=True
-                                                urls_to_visit.append("https://www.indiatoday.in/cities/chandigarh"+url['href'])
-                                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatoday.in" and url['href'] not in unique_urls.keys() and("chandigarh-news" in url['href'].split("/") or "chandigarh" in url["href"].split("/"))):
-                                                unique_urls[url['href']]=True
-                                                urls_to_visit.append(url['href'])
-                                finally:
-                                    continue
+#                 if(urltoVisit[0]=='h' and (["tags","tag", "livetv", "video"] not in urltoVisit.split("/"))):
+#                     try:
+#                         r=requests.get(urltoVisit, headers=HEADERS)
+#                         if(r.status_code==200):
+#                             soup=BeautifulSoup(r.text, 'html.parser')
+#                             with open('a.txt','w') as f:
+#                                 f.write(r.text)
+#                             f.close()
+#                             for url in soup.findAll('a'):
+#                                 try:
+#                                     if(url.has_attr('href')):
+#                                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#                                             if(url['href'][0]=='/' and "https://www.indiatoday.in/cities/chandigarh"+url['href'] not in unique_urls.keys() and ("chandigarh-news" in url['href'].split("/") or "chandigarh" in url["href"].split("/"))):
+#                                                 unique_urls["https://www.indiatoday.in/cities/chandigarh"+url['href']]=True
+#                                                 urls_to_visit.append("https://www.indiatoday.in/cities/chandigarh"+url['href'])
+#                                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.indiatoday.in" and url['href'] not in unique_urls.keys() and("chandigarh-news" in url['href'].split("/") or "chandigarh" in url["href"].split("/"))):
+#                                                 unique_urls[url['href']]=True
+#                                                 urls_to_visit.append(url['href'])
+#                                 finally:
+#                                     continue
                             
-                            if(soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_story__content__body__qCd5E story__content__body widgetgap'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'})or soup.find('html',{'lang':'en-uk'}))):
-                                heading_title=soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_story__content__body__qCd5E story__content__body widgetgap'}).find('h1')
-                                print("Yes")
-                                if(soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_description__fq_4S description'}).findAll('p')):
-                                    print("Yes")
+#                             if(soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_story__content__body__qCd5E story__content__body widgetgap'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'})or soup.find('html',{'lang':'en-uk'}))):
+#                                 heading_title=soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_story__content__body__qCd5E story__content__body widgetgap'}).find('h1')
+#                                 print("Yes")
+#                                 if(soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_description__fq_4S description'}).findAll('p')):
+#                                     print("Yes")
                                     
                                     
-                                    heading_desc=soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_description__fq_4S description'}).findAll('p')
-                                    news=""
-                                    for text in heading_desc:
+#                                     heading_desc=soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_description__fq_4S description'}).findAll('p')
+#                                     news=""
+#                                     for text in heading_desc:
                                         
-                                        news+=text.text
+#                                         news+=text.text
                         
-                                    worksheet.write(row,column,heading_title.text)
-                                    worksheet.write(row,column+1,news)
-                                    if(urltoVisit.split("/")[3]!='cities'):
-                                        worksheet.write(row,column+2,urltoVisit.split("/")[3])
-                                    else:
-                                        worksheet.write(row,column+2,"india")
-                                    worksheet.write(row,column+3,urltoVisit)
+#                                     worksheet.write(row,column,heading_title.text)
+#                                     worksheet.write(row,column+1,news)
+#                                     if(urltoVisit.split("/")[3]!='cities'):
+#                                         worksheet.write(row,column+2,urltoVisit.split("/")[3])
+#                                     else:
+#                                         worksheet.write(row,column+2,"india")
+#                                     worksheet.write(row,column+3,urltoVisit)
                                 
-                                    row+=1
+#                                     row+=1
                                     
-                                    count+=1
-                    finally:
-                        continue        
+#                                     count+=1
+#                     finally:
+#                         continue        
             
         
-    finally:
-        print("India today Chandigarh finished")
-        workbook.close()
+#     finally:
+#         print("India today Chandigarh finished")
+#         workbook.close()
         
-def JagranChandigarh():
-    print("Jagran")
-    workbook=xlsxwriter.Workbook('Jagran_Punjab.xlsx')
-    worksheet=workbook.add_worksheet()
-    row=0
-    column=0
-    worksheet.write(row,column,"Heading")
-    worksheet.write(row,column+1,"Body")
-    worksheet.write(row,column+2,"Category")
-    worksheet.write(row,column+3,"URL")
-    row+=1
-    HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
-    r=requests.get('https://www.jagran.com/punjab', headers=HEADERS)
-    urls_to_visit=[]
-    unique_urls={}
-    count=0
+# def JagranChandigarh():
+#     print("Jagran")
+#     workbook=xlsxwriter.Workbook('Jagran_Punjab.xlsx')
+#     worksheet=workbook.add_worksheet()
+#     row=0
+#     column=0
+#     worksheet.write(row,column,"Heading")
+#     worksheet.write(row,column+1,"Body")
+#     worksheet.write(row,column+2,"Category")
+#     worksheet.write(row,column+3,"URL")
+#     row+=1
+#     HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
+#     r=requests.get('https://www.jagran.com/punjab', headers=HEADERS)
+#     urls_to_visit=[]
+#     unique_urls={}
+#     count=0
 
-    try:
+#     try:
 
-        if(r.status_code==200):
-            soup=BeautifulSoup(r.text, 'html.parser')
+#         if(r.status_code==200):
+#             soup=BeautifulSoup(r.text, 'html.parser')
         
-            for url in soup.findAll('a'):
-                try:
-                    if(url.has_attr('href')):
-                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
-                            if(url['href'][0]=='/' and "https://www.jagran.com/punjab"+url['href'] not in unique_urls.keys() and ("chandigarh" in url['href'])):
-                                unique_urls["https://www.jagran.com/punjab"+url['href']]=True
-                                urls_to_visit.append("https://www.jagran.com/punjab"+url['href'])
-                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.jagran.com" and url['href'].split("/")[3]=="punjab" and url['href'] not in unique_urls.keys() and ("chandigarh" in url['href'])):
-                                unique_urls[url['href']]=True
-                                urls_to_visit.append(url['href'])
-                finally:
-                    continue
+#             for url in soup.findAll('a'):
+#                 try:
+#                     if(url.has_attr('href')):
+#                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#                             if(url['href'][0]=='/' and "https://www.jagran.com/punjab"+url['href'] not in unique_urls.keys() and ("chandigarh" in url['href'])):
+#                                 unique_urls["https://www.jagran.com/punjab"+url['href']]=True
+#                                 urls_to_visit.append("https://www.jagran.com/punjab"+url['href'])
+#                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.jagran.com" and url['href'].split("/")[3]=="punjab" and url['href'] not in unique_urls.keys() and ("chandigarh" in url['href'])):
+#                                 unique_urls[url['href']]=True
+#                                 urls_to_visit.append(url['href'])
+#                 finally:
+#                     continue
 
 
-        while(urls_to_visit and count<500):
-                urltoVisit=urls_to_visit[0]
-                print(count)
-                print(urltoVisit)
-                urls_to_visit.pop(0)
-                if(urltoVisit[0]=='h' and (["tags","tag", "livetv", "videos", "web-stories", "astrology"] not in urltoVisit.split("/"))):
-                    try:
+#         while(urls_to_visit and count<500):
+#                 urltoVisit=urls_to_visit[0]
+#                 print(count)
+#                 print(urltoVisit)
+#                 urls_to_visit.pop(0)
+#                 if(urltoVisit[0]=='h' and (["tags","tag", "livetv", "videos", "web-stories", "astrology"] not in urltoVisit.split("/"))):
+#                     try:
                         
-                        r=requests.get(urltoVisit, headers=HEADERS)
-                        if(r.status_code==200):
-                            soup=BeautifulSoup(r.text, 'html.parser')
-                            for url in soup.findAll('a'):
-                                try:
-                                    if(url.has_attr('href')):
-                                        if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
-                                            if(url['href'][0]=='/' and "https://www.jagran.com/punjab"+url['href'] not in unique_urls.keys() and ("chandigarh" in url['href'])):
-                                                unique_urls["https://www.jagran.com/punjab"+url['href']]=True
-                                                urls_to_visit.append("https://www.jagran.com/punjab"+url['href'])
-                                            elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.jagran.com" and url['href'].split("/")[3]=="punjab" and url['href'] not in unique_urls.keys() and ("chandigarh" in url['href'])):
-                                                unique_urls[url['href']]=True
-                                                urls_to_visit.append(url['href'])
-                                finally:
-                                    continue
+#                         r=requests.get(urltoVisit, headers=HEADERS)
+#                         if(r.status_code==200):
+#                             soup=BeautifulSoup(r.text, 'html.parser')
+#                             for url in soup.findAll('a'):
+#                                 try:
+#                                     if(url.has_attr('href')):
+#                                         if("video" not in url['href'].split("/") and "tag" not in url['href'].split("/") and "author" not in url['href'].split("/")):
+#                                             if(url['href'][0]=='/' and "https://www.jagran.com/punjab"+url['href'] not in unique_urls.keys() and ("chandigarh" in url['href'])):
+#                                                 unique_urls["https://www.jagran.com/punjab"+url['href']]=True
+#                                                 urls_to_visit.append("https://www.jagran.com/punjab"+url['href'])
+#                                             elif(url['href'][0]=='h' and url['href'].split("/")[2]=="www.jagran.com" and url['href'].split("/")[3]=="punjab" and url['href'] not in unique_urls.keys() and ("chandigarh" in url['href'])):
+#                                                 unique_urls[url['href']]=True
+#                                                 urls_to_visit.append(url['href'])
+#                                 finally:
+#                                     continue
                             
-                            if(soup.find('h1') and (soup.find('html',{'lang':'hi'}))):
-                                heading_title=soup.find('h1').text
-                                print("Yes")
+#                             if(soup.find('h1') and (soup.find('html',{'lang':'hi'}))):
+#                                 heading_title=soup.find('h1').text
+#                                 print("Yes")
                                 
                         
                                 
-                                if(soup.find('div', {'class':'articlecontent'}).findAll('p')):
+#                                 if(soup.find('div', {'class':'articlecontent'}).findAll('p')):
                                     
                                     
-                                    heading_desc=soup.find('div', {'class':'articlecontent'}).findAll('p')
-                                    news=""
-                                    print("Yes")
-                                    for text in heading_desc:
-                                        news+=text.text
+#                                     heading_desc=soup.find('div', {'class':'articlecontent'}).findAll('p')
+#                                     news=""
+#                                     print("Yes")
+#                                     for text in heading_desc:
+#                                         news+=text.text
                                     
-                                    news=news.replace("\xa0","")
-                                    news=news.replace("\n","")
-                                    heading_title=heading_title.replace("\xa0","")
-                                    heading_title=heading_title.replace("\n","")
+#                                     news=news.replace("\xa0","")
+#                                     news=news.replace("\n","")
+#                                     heading_title=heading_title.replace("\xa0","")
+#                                     heading_title=heading_title.replace("\n","")
                             
                                     
-                                    result=GoogleTranslator(source='auto', target='en').translate(news[0:2200])
-                                    headline=GoogleTranslator(source='auto', target='en').translate(heading_title)
-                                    print(result)
-                                    print(headline)
+#                                     result=GoogleTranslator(source='auto', target='en').translate(news[0:2200])
+#                                     headline=GoogleTranslator(source='auto', target='en').translate(heading_title)
+#                                     print(result)
+#                                     print(headline)
                                 
-                                    worksheet.write(row,column,headline)
-                                    worksheet.write(row,column+1,result)
-                                    worksheet.write(row,column+2,urltoVisit.split("/")[3])
-                                    worksheet.write(row,column+3,urltoVisit)
+#                                     worksheet.write(row,column,headline)
+#                                     worksheet.write(row,column+1,result)
+#                                     worksheet.write(row,column+2,urltoVisit.split("/")[3])
+#                                     worksheet.write(row,column+3,urltoVisit)
                                 
-                                    row+=1
+#                                     row+=1
                                     
-                                    count+=1
-                    except Exception as e:
-                        print(e)
+#                                     count+=1
+#                     except Exception as e:
+#                         print(e)
                     
-                    finally:
-                        continue        
+#                     finally:
+#                         continue        
                     
-    except Exception as e:
-        print(e)
+#     except Exception as e:
+#         print(e)
 
-    finally:
-        print("Jagran Finished")
-        workbook.close()
+#     finally:
+#         print("Jagran Finished")
+#         workbook.close()
 
 
 
