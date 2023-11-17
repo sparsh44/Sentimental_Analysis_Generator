@@ -1,6 +1,4 @@
-from django.shortcuts import render, HttpResponse
-from django.http import JsonResponse
-import json
+import re
 import csv
 import ssl
 import nltk
@@ -11,38 +9,24 @@ import numpy as np
 import pandas as pd
 import contractions
 import urllib.request
-from scipy.special import softmax
 from urllib.request import urlopen
 from keras.models import load_model
 from django.http import JsonResponse
 from nltk.tokenize import ToktokTokenizer
 from deep_translator import GoogleTranslator
 from keras.preprocessing.sequence import pad_sequences
-from transformers import DistilBertTokenizer
-from keras.preprocessing.sequence import pad_sequences
-import numpy as np
-from transformers import AutoModelForSequenceClassification
-from transformers import TFAutoModelForSequenceClassification
-from transformers import AutoTokenizer
-import numpy as np
-from scipy.special import softmax
-import csv
-import urllib.request
-import pandas as pd
-import torch
-from crawlers.AajTak import AajTak
-from crawlers.AajTakVideo import Aajtak_Video
-from crawlers.IndiaToday import IndiaToday
-from crawlers.IndiaToday_Chandigarh import IndiaToday_Chandigarh
-from crawlers.JagranChandigarh import JagranChandigarh
-from crawlers.News18 import News18
-from crawlers.News18Punj import News18Punj
-from crawlers.IndianExpressVideo import IndianExpressVideo
-from crawlers.IndiaTv import IndiaTv
-import urllib.request
-from urllib.request import urlopen
-import ssl
-import json
+from transformers import AutoModelForSequenceClassification, TFAutoModelForSequenceClassification, \
+        TFDistilBertModel, DistilBertTokenizer, AutoTokenizer
+# Crawlers
+from .crawlers.AajTak import AajTak
+from .crawlers.AajTakVideo import Aajtak_Video
+from .crawlers.IndiaToday import IndiaToday
+from .crawlers.IndiaToday_Chandigarh import IndiaToday_Chandigarh
+from .crawlers.JagranChandigarh import JagranChandigarh
+from .crawlers.News18 import News18
+from .crawlers.News18Punj import News18Punj
+from .crawlers.IndianExpressVideo import IndianExpressVideo
+from .crawlers.IndiaTv import IndiaTv
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
@@ -61,7 +45,6 @@ model_auto = AutoModelForSequenceClassification.from_pretrained("cardiffnlp/twit
 
 
 def sentiment(row):
-    labels=[]
     text = row[:1500]
     encoded_input = tokenizer_auto(text, return_tensors='pt') 
     with torch.no_grad():  
