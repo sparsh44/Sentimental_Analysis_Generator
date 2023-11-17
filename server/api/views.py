@@ -16,7 +16,7 @@ from nltk.tokenize import ToktokTokenizer
 from deep_translator import GoogleTranslator
 from keras.preprocessing.sequence import pad_sequences
 from transformers import AutoModelForSequenceClassification, TFAutoModelForSequenceClassification, \
-        TFDistilBertModel, DistilBertTokenizer, AutoTokenizer
+        TFDistilBertModel, DistilBertTokenizer, AutoTokenizer, pipeline
 # Crawlers
 from .crawlers.AajTak import AajTak
 from .crawlers.AajTakVideo import Aajtak_Video
@@ -102,6 +102,12 @@ def classification(row):
     value_to_find = predictions[0].argmax()
     predicted_class = categories[value_to_find]
     return predicted_class
+
+
+emotion_model = pipeline("sentiment-analysis",model='bhadresh-savani/distilbert-base-uncased-emotion', top_k=1)
+def emotion(row):
+    prediction = emotion_model(row[:1500])
+    return prediction[0][0]['label']
 
 
 def preprocess(series):
@@ -243,6 +249,7 @@ def PreProcessTheData():
     df8 = pd.concat([df, df2, df3, df4, df5, df6, df7], ignore_index=True, axis=0, join='outer')
     df8["Cat"]=df8["Body"].apply(lambda x:classification(str(x)))
     df8["Sentiment"] = df8.Body.apply(lambda x: sentiment(str(x)))
+    df8["Emotion"] = df8.Body.apply(lambda x: emotion(str(x)))
 
     file_name = "Final_Prepped_Data.xlsx"
     df8.to_excel(file_name, index=False)
