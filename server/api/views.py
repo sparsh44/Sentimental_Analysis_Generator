@@ -61,14 +61,15 @@ with open(mapping_file_path, 'r', encoding='utf-8') as file:
     csvreader = csv.reader(file, delimiter='\t')
     labels = [row[1] for row in csvreader if len(row)>1]
 
+tokenizer_auto = AutoTokenizer.from_pretrained("tokenizer_roberta/sentiment_tokenizer/")
+model_auto = AutoModelForSequenceClassification.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment/")
+
 def sentiment(row):
-    tokenizer = AutoTokenizer.from_pretrained("tokenizer_roberta/sentiment_tokenizer/")
-    model = AutoModelForSequenceClassification.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment/")
     labels=[]
     text = row[:1500]
-    encoded_input = tokenizer(text, return_tensors='pt') 
+    encoded_input = tokenizer_auto(text, return_tensors='pt') 
     with torch.no_grad():  
-        output = model(**encoded_input)
+        output = model_auto(**encoded_input)
     scores = output.logits[0]  
     scores = torch.softmax(scores, dim=0)
 
@@ -103,27 +104,20 @@ categories = {
 9:"Technology" 
 }
 
-
+tokenizer_bert = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
+print("tokenizer ready")
 def predict_text(loaded_model, text):
-    tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
-    print("tokenizer ready")
     max_length = 512
-
-    inputs = tokenizer(text, return_tensors='tf', truncation=True, padding='max_length', max_length=max_length)
-    
-
+    inputs = tokenizer_bert(text, return_tensors='tf', truncation=True, padding='max_length', max_length=max_length)
     input_ids = inputs['input_ids']
     attention_mask = inputs['attention_mask']
-    
-
     predictions = loaded_model.predict([input_ids, attention_mask])
-    
     return predictions
+
 
 def classification(row):
     example_text = row
     predictions = predict_text(loaded_model, example_text)
-
     value_to_find = predictions[0].argmax()
     predicted_class = categories[value_to_find]
     return predicted_class
@@ -131,13 +125,10 @@ def classification(row):
 
 def preprocess(series):
     series = series.apply(lambda x: str(x).lower())
-    
     def remove_contractions(row):
         return contractions.fix(row)
     series = series.apply(lambda x: remove_contractions(x))
-    
     series = series.str.replace(r'[^\w\s]', '', regex=True)
-    
     series = series.str.replace(r'[^a-zA-Z0-9\s]', '', regex=True)
     
     def remove_numbers(text):
