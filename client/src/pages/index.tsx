@@ -11,8 +11,8 @@ export default function Home() {
   return (
     <>
       <Header />
-      <Categories />
-      <div className="mt-4 mb-4">
+      {/* <Categories /> */}
+      <div className="mb-4">
         <ImageGallery />
       </div>
      <LatestPosts />

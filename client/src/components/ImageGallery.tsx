@@ -44,7 +44,7 @@ const ImageGallery = () => {
     "https://source.unsplash.com/wdTpPg4ukd8",
     "https://source.unsplash.com/Bd7gNnWJBkU",
     "https://source.unsplash.com/F2qh3yjz6Jk",
-    "https://source.unsplash.com/D6Tu_L3chLE",
+    "https://source.unsplash.com/OxJxV4qakx0",
   ];
 
   //These are custom properties for zoom effect while slide-show
@@ -74,7 +74,7 @@ const ImageGallery = () => {
           >
             <img className="w-screen opacity-80" src={each} />
             <h1 className="absolute md:top-60 top-24 -mt-4 inset-x-1/4 text-center z-10 md:text-6xl text-6xl bold text-white font-bold uppercase">
-            Welcome To News Analysis
+            Welcome To Semantic Analysis
             </h1>
             {/* <p className="absolute md:top-80 top-40 inset-x-1/4 text-center z-10 md:text-2xl text-3xl bold text-white font-bold uppercase">
                 Welcome To News Analysis
