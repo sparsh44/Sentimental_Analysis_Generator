@@ -7,8 +7,8 @@ import { useEffect } from "react";
 
 
 const header = () => {
-  const [minutes, setMinutes] = useState(0);
-  const [seconds, setSeconds] = useState(0);
+  const [minutes, setMinutes] = useState("00");
+  const [seconds, setSeconds] = useState("00");
 
   useEffect(() => {
     const currTime = new Date();
@@ -18,10 +18,14 @@ const header = () => {
       const now = new Date();
       const difference = target.getTime() - now.getTime();
       const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      setMinutes(m);
+      setMinutes(String(m));
 
       const s = Math.floor((difference % (1000 * 60)) / 1000);
-      setSeconds(s);
+      let second = String(s)
+      if(second.length == 1){
+        second = "0" + second;
+      }
+      setSeconds(second);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -30,32 +34,21 @@ const header = () => {
   return (
     <>
       <header className="bg-gray-50 py-1">
-        <div className="xl:container xl:mx-auto flex items-center sm:flex-row sm:justify-between text-center py-3">
-          <img src="/Emblem_of_India.svg" width={40} height={40} alt="" />
-          <div className="flex justify-center items-center -mr-10">
+        <div className="xl:container xl:mx-auto flex items-center justify-evenly sm:flex-row sm:justify-between text-center py-3">
+          <img src="/policeLogo.png" width={75} height={75} alt="" />
+          <div>
             {minutes} : {seconds}
           </div>
-          <div className="md:flex-none w-96 order-2 sm:order-1 flex items-center justify-center py-6 sm:py-0">
-            <input
-              type="text"
-              className="input-text"
-              placeholder="Search Your Interest..."
-            />
-            <FontAwesomeIcon
-              className="-ml-7 mt-1 hover:cursor-pointer"
-              icon={faMagnifyingGlass}
-            />
-          </div>
-          <div className="shrink w-80 sm:order-2 flex justify-center items-center">
+          <div className="shrink  sm:order-2">
             <a className="font-bold uppercase text-[34px]">
-              News Analysis
+            Community Radar
             </a>
           </div>
           <div className="w-96 order-3 flex justify-center items-center">
             <div className="flex gap-6">
-              <div className="flex justify-center items-center space-x-12">
+              <div className="flex justify-evenly items-center space-x-12">
                 ​​{" "}
-                <a className="hover:cursor-pointer hover:scale-[1.02] duration-300">
+                <a className="hover:cursor-pointer hover:scale-[1.02] duration-300 -ml-10 mr-10">
                   About
                 </a>
                 ​
@@ -63,7 +56,7 @@ const header = () => {
                   Refresh
                 </a>
               </div>
-              <img src="/G20.webp" width={90} height={90} alt="" />
+              <img src="/infosys.png" width={120} height={120} alt=""  className="ml-12"/>
               {/* <a className="mt-1 hover:cursor-pointer hover:scale-[1.02] duration-300">
                 <ImFacebook color="#888888" />
               </a>

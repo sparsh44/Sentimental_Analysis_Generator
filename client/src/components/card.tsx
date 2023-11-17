@@ -1,7 +1,9 @@
 import React from "react";
+import { useState } from "react";
 import style from "../styles/card.module.css";
 import Image from "next/image";
 const card = (props: any) => {
+  const [bookMark, setBookMark] = useState(false);
   return (
     <div className="flex justify-center items-center hover:scale-[1.01] duration-300 hover:cursor-pointer">
       <div className={style.card}>
@@ -17,10 +19,9 @@ const card = (props: any) => {
           <h3 className="flex justify-center" id="news-title">
             {props.Title}
           </h3>
-          <h6 className={style.news_source} id="news-source">
-            {props.categories}
-          </h6>
-          <p id="news-desc">{props.description}</p>
+          <p className="mt-2" id="news-desc">
+            {props.description}
+          </p>
         </div>
         <div className="flex justify-center items-center space-x-4">
           <div className="flex flex-col justify-center items-center">
@@ -32,11 +33,33 @@ const card = (props: any) => {
           <div className="flex flex-col justify-center items-center">
             Negative <div>{props.negative}%</div>
           </div>
+        {!bookMark ? (
+          <img
+            className="hover:cursor-pointer ml-20"
+            onClick={() => setBookMark(!bookMark)}
+            src="Bookmark.png"
+            width={50}
+            height={50}
+            alt=""
+          />
+        ) : (
+          <img
+            className="hover:cursor-pointer ml-20"
+            onClick={() => setBookMark(!bookMark)}
+            src="bookmarkActive.png"
+            width={60}
+            height={60}
+            alt=""
+          />
+        )}
         </div>
         <div className="flex justify-center items-center pt-3">
-          <a className="text-lg hover:underline hover:scale-[1.01] duration-300" target="_blank"
-            href={props.url}>
-          Read More
+          <a
+            className="text-lg hover:underline hover:scale-[1.01] duration-300"
+            target="_blank"
+            href={props.url}
+          >
+            Read More
           </a>
         </div>
       </div>
