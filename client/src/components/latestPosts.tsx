@@ -17,10 +17,25 @@ const latestPosts = () => {
   if (bookMark) {
   } else if (currentSemantic === "ALL") {
     currentNews = regionalNews;
+    if (search != "") {
+      currentNews = regionalNews.filter(function (d) {
+        const lowerCaseQuery = search.toLowerCase();
+        return (d["Title"].toLowerCase().includes(lowerCaseQuery) ||
+          d["Description"].toLowerCase().includes(lowerCaseQuery));
+      });
+    }
   } else {
+    var allNews = regionalNews;
+    if (search != "") {
+      allNews = regionalNews.filter(function (d) {
+        const lowerCaseQuery = search.toLowerCase();
+        return (d["Title"].toLowerCase().includes(lowerCaseQuery) ||
+          d["Description"].toLowerCase().includes(lowerCaseQuery));
+      });
+    }
     var currName = currentSemantic;
     // console.log(currName);
-    currentNews = regionalNews.filter(function (d) {
+    currentNews = allNews.filter(function (d) {
       const positive =
         100 -
         Math.round(parseFloat(d["Sentiment_Score"].split(" ")[1]) * 100) -
@@ -192,7 +207,8 @@ const latestPosts = () => {
               placeholder="Min %"
             />
             {!bookMark ? (
-              <img className="hover:cursor-pointer"
+              <img
+                className="hover:cursor-pointer"
                 onClick={() => setBookMark(!bookMark)}
                 src="Bookmark.png"
                 width={70}
@@ -200,7 +216,8 @@ const latestPosts = () => {
                 alt=""
               />
             ) : (
-              <img className="hover:cursor-pointer "
+              <img
+                className="hover:cursor-pointer "
                 onClick={() => setBookMark(!bookMark)}
                 src="bookmarkActive.png"
                 width={80}
