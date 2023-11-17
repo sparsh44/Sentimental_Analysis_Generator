@@ -27,6 +27,8 @@ from .crawlers.News18 import News18
 from .crawlers.News18Punj import News18Punj
 from .crawlers.IndianExpressVideo import IndianExpressVideo
 from .crawlers.IndiaTv import IndiaTv
+from fuzzymatcher import fuzz
+
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
@@ -306,3 +308,24 @@ def index (request):
 
     return JsonResponse({"result":"success", "News":news}, safe=False, json_dumps_params={'ensure_ascii': False})
 
+
+def queryResults(request):
+    # Read the DataFrame from the Excel file
+    df = pd.read_excel("Final_Prepped_Data.xlsx")
+
+    # Get the query from the request
+    query = request.GET.get('query', '')
+
+    # Use fuzzymatcher to perform fuzzy matching
+    matching_rows = fuzz.extract(query, df['ColumnToSearch'], limit=10)
+
+    # Get the indices of the matching rows
+    matching_indices = [match['index'] for match in matching_rows]
+
+    # Extract the matching rows from the DataFrame
+    results = df.loc[matching_indices]
+
+    # Convert the results to a list of dictionaries
+    results_list = results.to_dict(orient='records')
+
+    return JsonResponse({'results': results_list})

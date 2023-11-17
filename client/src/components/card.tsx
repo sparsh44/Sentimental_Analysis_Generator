@@ -1,9 +1,36 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import style from "../styles/card.module.css";
 import Image from "next/image";
-const card = (props: any) => {
+
+interface CardProps {
+  imgUrl: string;
+  Title: string;
+  description: string;
+  positive: number;
+  neutral: number;
+  negative: number;
+  url: string;
+}
+
+const Card: React.FC<CardProps> = (props) => {
   const [bookMark, setBookMark] = useState(false);
+  const [priority, setPriority] = useState<string[]>([]);
+
+  const handlePriorityChange = (value: string) => {
+    const updatedPriority = [...priority];
+
+    if (updatedPriority.includes(value)) {
+      // If the checkbox is already selected, deselect it
+      const index = updatedPriority.indexOf(value);
+      updatedPriority.splice(index, 1);
+    } else {
+      // If the checkbox is not selected, select it
+      updatedPriority.push(value);
+    }
+
+    setPriority(updatedPriority);
+  };
+
   return (
     <div className="flex justify-center items-center hover:scale-[1.01] duration-300 hover:cursor-pointer">
       <div className={style.card}>
@@ -33,27 +60,57 @@ const card = (props: any) => {
           <div className="flex flex-col justify-center items-center">
             Negative <div>{props.negative}%</div>
           </div>
-        {!bookMark ? (
-          <img
-            className="hover:cursor-pointer ml-20"
-            onClick={() => setBookMark(!bookMark)}
-            src="Bookmark.png"
-            width={50}
-            height={50}
-            alt=""
-          />
-        ) : (
-          <img
-            className="hover:cursor-pointer ml-20"
-            onClick={() => setBookMark(!bookMark)}
-            src="bookmarkActive.png"
-            width={60}
-            height={60}
-            alt=""
-          />
-        )}
+        </div>
+        {/* Priority Checkboxes */}
+        <div className={`${style.priorityCheckboxes} flex flex-row justify-center mt-2`}>
+          <label className="checkbox-label mr-4">
+            <input
+              type="checkbox"
+              value="Critical"
+              checked={priority.includes("Critical")}
+              onChange={() => handlePriorityChange("Critical")}
+            />
+            Critical
+          </label>
+          <label className="checkbox-label mr-4">
+            <input
+              type="checkbox"
+              value="High"
+              checked={priority.includes("High")}
+              onChange={() => handlePriorityChange("High")}
+            />
+            High
+          </label>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              value="Low"
+              checked={priority.includes("Low")}
+              onChange={() => handlePriorityChange("Low")}
+            />
+            Low
+          </label>
         </div>
         <div className="flex justify-center items-center pt-3">
+          {!bookMark ? (
+            <img
+              className="hover:cursor-pointer mr-4"
+              onClick={() => setBookMark(!bookMark)}
+              src="Bookmark.png"
+              width={50}
+              height={50}
+              alt=""
+            />
+          ) : (
+            <img
+              className="hover:cursor-pointer mr-4"
+              onClick={() => setBookMark(!bookMark)}
+              src="bookmarkActive.png"
+              width={60}
+              height={60}
+              alt=""
+            />
+          )}
           <a
             className="text-lg hover:underline hover:scale-[1.01] duration-300"
             target="_blank"
@@ -67,4 +124,4 @@ const card = (props: any) => {
   );
 };
 
-export default card;
+export default Card;
