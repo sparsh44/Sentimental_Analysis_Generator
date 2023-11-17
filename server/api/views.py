@@ -1,54 +1,34 @@
-from django.shortcuts import render, HttpResponse
-from django.http import JsonResponse
-import json
+import re
 import csv
-import requests
-from bs4 import BeautifulSoup
-import subprocess
-from api import Aajtak_Video
-from api import IndianExpress_Video
-from api import ZeeNews_Video
+import ssl
+import nltk
+import spacy
+import torch
 import threading
-import time
-import xlsxwriter
+import numpy as np
 import pandas as pd
 import contractions
-import re
-import nltk
-from nltk.tokenize import ToktokTokenizer
-import spacy
-import nltk
-from deep_translator import GoogleTranslator
-from keras.models import load_model
-from transformers import TFDistilBertModel
-from keras.preprocessing.sequence import pad_sequences
-from transformers import DistilBertTokenizer
-from keras.preprocessing.sequence import pad_sequences
-import numpy as np
-from transformers import AutoModelForSequenceClassification
-from transformers import TFAutoModelForSequenceClassification
-from transformers import AutoTokenizer
-import numpy as np
+import urllib.request
 from scipy.special import softmax
-import csv
-import urllib.request
-import pandas as pd
-import torch
-from crawlers.AajTak import AajTak
-from crawlers.AajTakVideo import Aajtak_Video
-from crawlers.IndiaToday import IndiaToday
-from crawlers.IndiaToday_Chandigarh import IndiaToday_Chandigarh
-from crawlers.JagranChandigarh import JagranChandigarh
-from crawlers.News18 import News18
-from crawlers.News18Punj import News18Punj
-from crawlers.IndianExpressVideo import IndianExpressVideo
-from crawlers.IndiaTv import IndiaTv
-import urllib.request
 from urllib.request import urlopen
-import ssl
-import json
+from keras.models import load_model
+from django.http import JsonResponse
+from nltk.tokenize import ToktokTokenizer
+from deep_translator import GoogleTranslator
+from keras.preprocessing.sequence import pad_sequences
+from transformers import AutoModelForSequenceClassification, TFAutoModelForSequenceClassification, \
+        TFDistilBertModel, DistilBertTokenizer, AutoTokenizer
+# Crawlers
+from .crawlers.AajTak import AajTak
+from .crawlers.AajTakVideo import Aajtak_Video
+from .crawlers.IndiaToday import IndiaToday
+from .crawlers.IndiaToday_Chandigarh import IndiaToday_Chandigarh
+from .crawlers.JagranChandigarh import JagranChandigarh
+from .crawlers.News18 import News18
+from .crawlers.News18Punj import News18Punj
+from .crawlers.IndianExpressVideo import IndianExpressVideo
+from .crawlers.IndiaTv import IndiaTv
 ssl._create_default_https_context = ssl._create_unverified_context
-
 
 
 # mapping_link = f"https://raw.githubusercontent.com/cardiffnlp/tweeteval/main/datasets/sentiment/mapping.txt"
@@ -63,6 +43,7 @@ with open(mapping_file_path, 'r', encoding='utf-8') as file:
 
 tokenizer_auto = AutoTokenizer.from_pretrained("tokenizer_roberta/sentiment_tokenizer/")
 model_auto = AutoModelForSequenceClassification.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment/")
+
 
 def sentiment(row):
     labels=[]
@@ -88,6 +69,7 @@ def sentiment(row):
 
     return ans[:]
 
+
 custom_objects = {'TFDistilBertModel': TFDistilBertModel}
 
 loaded_model = load_model("distilbert_model.h5", custom_objects=custom_objects)
@@ -103,6 +85,7 @@ categories = {
 8:"International" ,
 9:"Technology" 
 }
+
 
 tokenizer_bert = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
 print("tokenizer ready")
@@ -315,5 +298,4 @@ def index (request):
     print("Session Ended")
     
 
-    
     return JsonResponse({"result":"success", "News":news}, safe=False, json_dumps_params={'ensure_ascii': False})
