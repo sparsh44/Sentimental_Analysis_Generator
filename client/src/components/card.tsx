@@ -10,6 +10,7 @@ interface CardProps {
   neutral: number;
   negative: number;
   url: string;
+  updatedOn:string
 }
 
 const Card: React.FC<CardProps> = (props) => {
@@ -31,6 +32,30 @@ const Card: React.FC<CardProps> = (props) => {
     setPriority(updatedPriority);
   };
 
+
+  function extractDateFromTimestamp(timestamp: string) {
+    let parsedDate;
+  
+    // Check if the timestamp follows the "UPDATED: Mon DD, YYYY HH:mm IST" format
+    const matchFormat1 = timestamp.match(/UPDATED: (\w{3} \d{2}, \d{4} \d{2}:\d{2} (?:AM|PM) IST)/i);
+    if (matchFormat1) {
+      parsedDate = new Date(matchFormat1[1]);
+    } else {
+      // Check if the timestamp follows the "Updated: Day, DD Month YYYY HH:mm PM (IST)" format
+      const matchFormat2 = timestamp.match(/Updated: (\w{3}, \d{2} \w{3} \d{4} \d{2}:\d{2} (?:AM|PM) \(IST\))/i);
+      if (matchFormat2) {
+        parsedDate = new Date(matchFormat2[1]);
+      } else {
+        // If neither format matches, return null or handle accordingly
+        return null;
+      }
+    }
+  
+    // Format the date as needed
+    const formattedDate = `${parsedDate.getDate()}/${parsedDate.getMonth() + 1}/${parsedDate.getFullYear()}`;
+  
+    return formattedDate;
+  }
   return (
     <div className="flex justify-center items-center hover:scale-[1.01] duration-300 hover:cursor-pointer">
       <div className={style.card}>
@@ -118,6 +143,7 @@ const Card: React.FC<CardProps> = (props) => {
           >
             Read More
           </a>
+          {/* <label>Updated On : {extractDateFromTimestamp(props.updatedOn)}</label> */}
         </div>
       </div>
     </div>
