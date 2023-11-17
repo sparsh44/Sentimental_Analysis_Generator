@@ -3,9 +3,14 @@ import Card from "../components/card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import regional from "../../public/data/regional.json";
+import sampleText from "../../public/data/sampleText.json";
+import natural from 'natural';
+
+import { Dropdown } from 'flowbite-react';
+
 
 const latestPosts = () => {
-  const regionalNews = regional.News;
+  const regionalNews = sampleText.News;
   const [currentNumber, setNumber] = useState(0);
   const [newsData, setNewsData] = useState(regionalNews);
   const [currentSemantic, setCurrentSemantic] = useState("ALL");
@@ -54,6 +59,7 @@ const latestPosts = () => {
     });
   }
   const handleSearch = (e: any) => {
+    setSearch("")
     setCurrentSemantic(e);
   };
   const apiUrl = "http://127.0.0.1:8000/";
@@ -94,6 +100,8 @@ const latestPosts = () => {
       .catch((error) => console.error("Error fetching data: ", error));
   }, []); // The empty array means this effect runs once after initial render
 
+
+  const topKeywords = ['earthquake','crime', 'robbery', 'theft', 'assault', 'burglary', 'arson', 'fraud', 'kidnapping', 'homicide', 'violence' ,'other']
   return (
     <>
       <div className="mb-10">
@@ -106,7 +114,7 @@ const latestPosts = () => {
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
-              style={{ width: 500, height: 50 }}
+              style={{ width: 400, height: 50 }}
               type="text"
               className="input-text"
               placeholder="Search Your Interest..."
@@ -115,6 +123,11 @@ const latestPosts = () => {
               className="-ml-7 mt-1 hover:cursor-pointer"
               icon={faMagnifyingGlass}
             />
+        <Dropdown label="Top Keywords" dismissOnClick={false} className="bg-black font-black">
+            {topKeywords.map((keyword, index) => (
+              <Dropdown.Item key={index} onClick={()=>setSearch(keyword)}>{keyword}</Dropdown.Item>
+            ))}
+          </Dropdown>
           </div>
           <div className="flex justify-center items-center space-x-4 ml-20">
             <p>Sort News By - </p>
