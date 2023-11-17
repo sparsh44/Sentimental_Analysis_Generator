@@ -35,13 +35,16 @@ def IndiaToday():
                     continue
         while(urls_to_visit and count<20):
                 urltoVisit=urls_to_visit[0]
+                print(urltoVisit)
+                print(count)
                 urls_to_visit.pop(0)
-           
+            
                 if(urltoVisit[0]=='h' and (["tags","tag", "livetv", "video"] not in urltoVisit.split("/"))):
                     try:
                         r=requests.get(urltoVisit, headers=HEADERS)
                         if(r.status_code==200):
                             soup=BeautifulSoup(r.text, 'html.parser')
+                        
                             for url in soup.findAll('a'):
                                 try:
                                     if(url.has_attr('href')):
@@ -55,13 +58,15 @@ def IndiaToday():
                                 finally:
                                     continue
                             
-                            if(soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_story__content__body__qCd5E story__content__body widgetgap'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'})or soup.find('html',{'lang':'en-uk'}))):
-                                heading_title=soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_story__content__body__qCd5E story__content__body widgetgap'}).find('h1')
-                                if(soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_description__fq_4S description'}).findAll('p')):
-                            
+                            if(soup.find('h1', {'class':'Story_strytitle__MYXmR'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'})or soup.find('html',{'lang':'en-uk'}))):
+                                heading_title=soup.find('h1', {'class':'Story_strytitle__MYXmR'})
+                                print("Yes")
+                                if(soup.find('div', {'class':'Story_description__fq_4S'})):
+                                    print("Yes")
                                     
                                     
-                                    heading_desc=soup.find('div', {'class':'jsx-99cc083358cc2e2d Story_description__fq_4S description'}).findAll('p')
+                                    heading_desc=soup.find('div', {'class':'Story_description__fq_4S'}).findAll('p')
+                                
                                     news=""
                                     for text in heading_desc:
                                         
@@ -74,7 +79,7 @@ def IndiaToday():
                                     else:
                                         worksheet.write(row,column+2,"india")
                                     worksheet.write(row,column+3,urltoVisit)
-                              
+                                
                                     row+=1
                                     
                                     count+=1

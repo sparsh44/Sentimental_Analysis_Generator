@@ -17,64 +17,64 @@ def IndianExpressVideo():
     row+=1
 
 
-    def fetch_html(url):
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                return response.text
-            else:
-                print(
-                    f"Failed to fetch {url}. Status code: {response.status_code}")
-                return None
-        except Exception as e:
-            print(f"An error occurred while fetching {url}: {str(e)}")
-            return None
+    # def fetch_html(url):
+    #     try:
+    #         response = requests.get(url)
+    #         if response.status_code == 200:
+    #             return response.text
+    #         else:
+    #             print(
+    #                 f"Failed to fetch {url}. Status code: {response.status_code}")
+    #             return None
+    #     except Exception as e:
+    #         print(f"An error occurred while fetching {url}: {str(e)}")
+    #         return None
 
 
-    def extract_video_links(html_content):
-        video_links = set()  # Use a set to store unique links
-        soup = BeautifulSoup(html_content, 'html.parser')
-        # Find 'a' tags with 'href' attribute
-        video_tags = soup.find_all('a', href=True)
+    # def extract_video_links(html_content):
+    #     video_links = set()  # Use a set to store unique links
+    #     soup = BeautifulSoup(html_content, 'html.parser')
+    #     # Find 'a' tags with 'href' attribute
+    #     video_tags = soup.find_all('a', href=True)
 
-        for tag in video_tags:
-            video_url = tag['href']
-            if video_url.startswith('https://indianexpress'):
-                video_links.add(video_url)
+    #     for tag in video_tags:
+    #         video_url = tag['href']
+    #         if video_url.startswith('https://indianexpress'):
+    #             video_links.add(video_url)
 
-        return list(video_links)
+    #     return list(video_links)
 
 
-    def crawl_website(url, max_links):
-        visited_links = set()
-        to_visit = [url]
-        all_video_links = set()
+    # def crawl_website(url, max_links):
+    #     visited_links = set()
+    #     to_visit = [url]
+    #     all_video_links = set()
 
-        while to_visit and len(all_video_links) < max_links:
-            current_url = to_visit.pop(0)
-            if current_url not in visited_links:
-                html_content = fetch_html(current_url)
-                if html_content:
-                    video_links = extract_video_links(html_content)
+    #     while to_visit and len(all_video_links) < max_links:
+    #         current_url = to_visit.pop(0)
+    #         if current_url not in visited_links:
+    #             html_content = fetch_html(current_url)
+    #             if html_content:
+    #                 video_links = extract_video_links(html_content)
                 
-                    with open('./indianexpress_link.csv', 'a') as f:
-                        for link in video_links:
-                            if "/videos/" in link and link not in all_video_links and len(link) > 60:
-                                f.write(link + '\n')
-                                all_video_links.add(link)
+    #                 with open('./indianexpress_link.csv', 'a') as f:
+    #                     for link in video_links:
+    #                         if "/videos/" in link and link not in all_video_links and len(link) > 60:
+    #                             f.write(link + '\n')
+    #                             all_video_links.add(link)
 
-                    visited_links.add(current_url)
-                    # Add found video links to the queue
-                    to_visit.extend(video_links)
+    #                 visited_links.add(current_url)
+    #                 # Add found video links to the queue
+    #                 to_visit.extend(video_links)
 
 
-    # List of news websites to crawl
-    news_websites = [
-        'https://indianexpress.com/'
-    ]
+    # # List of news websites to crawl
+    # news_websites = [
+    #     'https://indianexpress.com/'
+    # ]
 
-    for website in news_websites:
-        crawl_website(website, max_links=1)
+    # for website in news_websites:
+    #     crawl_website(website, max_links=1)
 
     print("Crawling completed.")
 

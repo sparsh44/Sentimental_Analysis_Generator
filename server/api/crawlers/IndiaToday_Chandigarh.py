@@ -10,7 +10,7 @@ def IndiaToday_Chandigarh():
     column=0
     worksheet.write(row,column,"Heading")
     worksheet.write(row,column+1,"Body")
-    worksheet.write(row,column+2,"Category")
+    worksheet.write(row,column+2,"Updated Date")
     worksheet.write(row,column+3,"URL")
     row+=1
     HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
@@ -33,7 +33,7 @@ def IndiaToday_Chandigarh():
                                 urls_to_visit.append(url['href'])
                 finally:
                     continue
-        while(urls_to_visit and count<20):
+        while(urls_to_visit and count<2):
                 urltoVisit=urls_to_visit[0]
                 print(urltoVisit)
                 print(count)
@@ -44,9 +44,6 @@ def IndiaToday_Chandigarh():
                         r=requests.get(urltoVisit, headers=HEADERS)
                         if(r.status_code==200):
                             soup=BeautifulSoup(r.text, 'html.parser')
-                            with open('a.txt','w') as f:
-                                f.write(r.text)
-                            f.close()
                             for url in soup.findAll('a'):
                                 try:
                                     if(url.has_attr('href')):
@@ -60,25 +57,25 @@ def IndiaToday_Chandigarh():
                                 finally:
                                     continue
                             
-                            if(soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_story__content__body__qCd5E story__content__body widgetgap'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'})or soup.find('html',{'lang':'en-uk'}))):
-                                heading_title=soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_story__content__body__qCd5E story__content__body widgetgap'}).find('h1')
+                            if(soup.find('h1', {'class':'Story_strytitle__MYXmR'}) and (soup.find('html',{'lang':'en'}) or soup.find('html',{'lang':'en-us'}) or soup.find('html',{'lang':'en-uk'}))):
+                                heading_title=soup.find('h1', {'class':'Story_strytitle__MYXmR'})
                                 print("Yes")
-                                if(soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_description__fq_4S description'}).findAll('p')):
+                                if(soup.find('div', {'class':'Story_description__fq_4S'}).findAll('p')):
                                     print("Yes")
                                     
                                     
-                                    heading_desc=soup.find('div', {'class':'jsx-ace90f4eca22afc7 Story_description__fq_4S description'}).findAll('p')
+                                    heading_desc=soup.find('div', {'class':'Story_description__fq_4S'}).findAll('p')
                                     news=""
                                     for text in heading_desc:
                                         
                                         news+=text.text
+                                        
+                                    updated=soup.find('span',{'class':'strydate'}).text
+                                    print(updated)
                         
                                     worksheet.write(row,column,heading_title.text)
                                     worksheet.write(row,column+1,news)
-                                    if(urltoVisit.split("/")[3]!='cities'):
-                                        worksheet.write(row,column+2,urltoVisit.split("/")[3])
-                                    else:
-                                        worksheet.write(row,column+2,"india")
+                                    worksheet.write(row,column+2,updated)
                                     worksheet.write(row,column+3,urltoVisit)
                                 
                                     row+=1
