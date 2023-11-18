@@ -17,6 +17,7 @@ const latestPosts = () => {
   const [currActiveButton, setActiveButton] = useState("ALL");
   const [search, setSearch] = useState("");
   const [bookMark, setBookMark] = useState(false);
+  const [bookMarkArr, setBookMarkArr] = useState([]);
 
   var currentNews = regionalNews;
   if (bookMark) {
@@ -25,8 +26,10 @@ const latestPosts = () => {
     if (search != "") {
       currentNews = regionalNews.filter(function (d) {
         const lowerCaseQuery = search.toLowerCase();
-        return (d["Title"].toLowerCase().includes(lowerCaseQuery) ||
-          d["Description"].toLowerCase().includes(lowerCaseQuery));
+        return (
+          d["Title"].toLowerCase().includes(lowerCaseQuery) ||
+          d["Description"].toLowerCase().includes(lowerCaseQuery)
+        );
       });
     }
   } else {
@@ -34,8 +37,10 @@ const latestPosts = () => {
     if (search != "") {
       allNews = regionalNews.filter(function (d) {
         const lowerCaseQuery = search.toLowerCase();
-        return (d["Title"].toLowerCase().includes(lowerCaseQuery) ||
-          d["Description"].toLowerCase().includes(lowerCaseQuery));
+        return (
+          d["Title"].toLowerCase().includes(lowerCaseQuery) ||
+          d["Description"].toLowerCase().includes(lowerCaseQuery)
+        );
       });
     }
     var currName = currentSemantic;
@@ -117,7 +122,7 @@ const latestPosts = () => {
               style={{ width: 400, height: 50 }}
               type="text"
               className="input-text"
-              placeholder="Search Your Interest..."
+              placeholder="Search Keywords..."
             />
             <FontAwesomeIcon
               className="-ml-7 mt-1 hover:cursor-pointer"

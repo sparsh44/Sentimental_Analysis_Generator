@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { useEffect } from "react";
-
+import Marquee from "react-fast-marquee";
 
 const header = () => {
   const [minutes, setMinutes] = useState("00");
@@ -21,8 +21,8 @@ const header = () => {
       setMinutes(String(m));
 
       const s = Math.floor((difference % (1000 * 60)) / 1000);
-      let second = String(s)
-      if(second.length == 1){
+      let second = String(s);
+      if (second.length == 1) {
         second = "0" + second;
       }
       setSeconds(second);
@@ -35,14 +35,12 @@ const header = () => {
     <>
       <header className="bg-gray-50 py-1">
         <div className="xl:container xl:mx-auto flex items-center justify-evenly sm:flex-row sm:justify-between text-center py-3">
-          <img src="/policeLogo.png" width={75} height={75} alt="" />
+          <img src="/logo.png" width={75} height={75} alt="" />
           <div>
             {minutes} : {seconds}
           </div>
           <div className="shrink  sm:order-2">
-            <a className="font-bold uppercase text-[34px]">
-            Community Radar
-            </a>
+            <a className="font-bold uppercase text-[34px]">Community Radar</a>
           </div>
           <div className="w-96 order-3 flex justify-center items-center">
             <div className="flex gap-6">
@@ -52,11 +50,20 @@ const header = () => {
                   About
                 </a>
                 ​
-                <a href="/" className="hover:cursor-pointer hover:scale-[1.02] duration-300">
+                <a
+                  href="/"
+                  className="hover:cursor-pointer hover:scale-[1.02] duration-300"
+                >
                   Refresh
                 </a>
               </div>
-              <img src="/infosys.png" width={120} height={120} alt=""  className="ml-12"/>
+              <img
+                src="/policeLogo.png"
+                width={75}
+                height={75}
+                alt=""
+                className="ml-12"
+              />
               {/* <a className="mt-1 hover:cursor-pointer hover:scale-[1.02] duration-300">
                 <ImFacebook color="#888888" />
               </a>
@@ -71,6 +78,14 @@ const header = () => {
         </div>
         {/* Divider */}
         <hr />
+        <div className="border-white border-t-2">
+          <Marquee pauseOnHover gradient={false} className="bg-[#2d5055]">
+            <div className="font-bold text-xl backgroundColor text-white mt-3 flex items-center justify-center">
+              We have crawled over 6 websites in 10 minutes.
+              Data is spanning over 120+ articles.
+            </div>
+          </Marquee>
+        </div>
       </header>
     </>
   );

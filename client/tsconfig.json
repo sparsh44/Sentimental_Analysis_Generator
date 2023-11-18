@@ -18,6 +18,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/components/trending.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/components/trending.js", "src/components/card.tsx"],
   "exclude": ["node_modules"]
 }
