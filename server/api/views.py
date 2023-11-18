@@ -1,13 +1,10 @@
 
 import pandas as pd
 import contractions
-import urllib.request
-from urllib.request import urlopen
 from keras.models import load_model
 from django.http import JsonResponse
 from nltk.tokenize import ToktokTokenizer
 from deep_translator import GoogleTranslator
-from keras.preprocessing.sequence import pad_sequences
 # Crawlers
 from .crawlers.AajTak import AajTak
 from .crawlers.AajTakVideo import Aajtak_Video
@@ -28,19 +25,14 @@ import nltk
 import spacy
 import torch
 import threading
-import numpy as np
 import pandas as pd
 import contractions
-import urllib.request
-from urllib.request import urlopen
 from keras.models import load_model
 from django.http import JsonResponse
 from nltk.tokenize import ToktokTokenizer
 from deep_translator import GoogleTranslator
-from keras.preprocessing.sequence import pad_sequences
 from transformers import AutoModelForSequenceClassification, TFAutoModelForSequenceClassification, \
         TFDistilBertModel, DistilBertTokenizer, AutoTokenizer, pipeline
-
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
@@ -343,4 +335,3 @@ def index (request):
 
     return JsonResponse({"result":"success", "News":news}, safe=False, json_dumps_params={'ensure_ascii': False})
     
-
