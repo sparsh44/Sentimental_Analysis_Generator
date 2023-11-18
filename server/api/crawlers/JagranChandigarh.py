@@ -12,7 +12,7 @@ def JagranChandigarh():
     column=0
     worksheet.write(row,column,"Heading")
     worksheet.write(row,column+1,"Body")
-    worksheet.write(row,column+2,"Updated Date")
+    worksheet.write(row,column+2,"Updated_Date")
     worksheet.write(row,column+3,"URL")
     row+=1
     HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
@@ -40,7 +40,7 @@ def JagranChandigarh():
                     continue
 
 
-        while(urls_to_visit and count<2):
+        while(urls_to_visit and count<100):
                 urltoVisit=urls_to_visit[0]
                 print(count)
                 print(urltoVisit)
