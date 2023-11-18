@@ -64,6 +64,12 @@ const header = () => {
                 alt=""
                 className="ml-12"
               />
+              <img
+                src="/infosys.png"
+                width={90}
+                height={90}
+                alt=""
+              />
               {/* <a className="mt-1 hover:cursor-pointer hover:scale-[1.02] duration-300">
                 <ImFacebook color="#888888" />
               </a>
@@ -81,8 +87,8 @@ const header = () => {
         <div className="border-white border-t-2">
           <Marquee pauseOnHover gradient={false} className="bg-[#2d5055]">
             <div className="font-bold text-xl backgroundColor text-white mt-3 flex items-center justify-center">
-              We have crawled over 6 websites in 10 minutes.
-              Data is spanning over 120+ articles.
+              Crawled over 6 websites under 10 minutes.
+              Data spanning over 120+ articles.
             </div>
           </Marquee>
         </div>

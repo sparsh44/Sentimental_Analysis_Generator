@@ -85,6 +85,25 @@ const Card: React.FC<CardProps> = (props) => {
           <div className="flex flex-col justify-center items-center">
             Negative <div>{props.negative}%</div>
           </div>
+          {!bookMark ? (
+            <img
+              className="hover:cursor-pointer mr-4"
+              onClick={() => setBookMark(!bookMark)}
+              src="Bookmark.png"
+              width={50}
+              height={50}
+              alt=""
+            />
+          ) : (
+            <img
+              className="hover:cursor-pointer mr-4"
+              onClick={() => setBookMark(!bookMark)}
+              src="bookmarkActive.png"
+              width={60}
+              height={60}
+              alt=""
+            />
+          )}
         </div>
         {/* Priority Checkboxes */}
         <div className={`${style.priorityCheckboxes} flex flex-row justify-center mt-2`}>
@@ -116,26 +135,9 @@ const Card: React.FC<CardProps> = (props) => {
             Low
           </label>
         </div>
+        <div className="flex justify-center items-center mt-2">{props.time}</div>
         <div className="flex justify-center items-center pt-3">
-          {!bookMark ? (
-            <img
-              className="hover:cursor-pointer mr-4"
-              onClick={() => setBookMark(!bookMark)}
-              src="Bookmark.png"
-              width={50}
-              height={50}
-              alt=""
-            />
-          ) : (
-            <img
-              className="hover:cursor-pointer mr-4"
-              onClick={() => setBookMark(!bookMark)}
-              src="bookmarkActive.png"
-              width={60}
-              height={60}
-              alt=""
-            />
-          )}
+          
           <a
             className="text-lg hover:underline hover:scale-[1.01] duration-300"
             target="_blank"
