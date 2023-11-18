@@ -295,6 +295,7 @@ const latestPosts = () => {
               </span>
             }
             url={news["URL"]}
+            updatedOn = {news['TimeStamp']}
           />
         ))}
       </div>
