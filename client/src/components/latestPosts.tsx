@@ -4,10 +4,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import regional from "../../public/data/regional.json";
 import sampleText from "../../public/data/sampleText.json";
-import natural from 'natural';
+import natural from "natural";
 
-import { Dropdown } from 'flowbite-react';
-
+import { Dropdown } from "flowbite-react";
 
 const latestPosts = () => {
   const regionalNews = sampleText.News;
@@ -64,7 +63,7 @@ const latestPosts = () => {
     });
   }
   const handleSearch = (e: any) => {
-    setSearch("")
+    setSearch("");
     setCurrentSemantic(e);
   };
   const apiUrl = "http://127.0.0.1:8000/";
@@ -105,13 +104,28 @@ const latestPosts = () => {
       .catch((error) => console.error("Error fetching data: ", error));
   }, []); // The empty array means this effect runs once after initial render
 
-
-  const topKeywords = ['earthquake','crime', 'robbery', 'theft', 'assault', 'burglary', 'arson', 'fraud', 'kidnapping', 'homicide', 'violence' ,'other']
+  const topKeywords = [
+    "crime",
+    "robbery",
+    "theft",
+    "assault",
+    "burglary",
+    "arson",
+    "fraud",
+    "kidnapping",
+    "homicide",
+    "violence",
+    "other",
+  ];
   return (
     <>
       <div className="mb-10">
         <div className="flex justify-center items-center text-5xl m-6 mt-12">
           LATEST ARTICLES
+        </div>
+        <div className="flex justify-center items-center mb-4">
+           Crawled more than {currentNews.length}+{" "}
+          <span className="font-bold ml-1 mr-1 text-lg"> LIVE </span> news!
         </div>
         <div className="flex justify-center items-center">
           <div className="flex justify-center items-center ">
@@ -121,18 +135,33 @@ const latestPosts = () => {
               }}
               style={{ width: 400, height: 50 }}
               type="text"
-              className="input-text"
+              className="input-text ml-4"
               placeholder="Search Keywords..."
             />
             <FontAwesomeIcon
               className="-ml-7 mt-1 hover:cursor-pointer"
               icon={faMagnifyingGlass}
             />
-        <Dropdown label="Top Keywords" dismissOnClick={false} className="bg-black font-black">
-            {topKeywords.map((keyword, index) => (
-              <Dropdown.Item key={index} onClick={()=>setSearch(keyword)}>{keyword}</Dropdown.Item>
-            ))}
-          </Dropdown>
+            <div className=" ml-3">
+              <Dropdown
+                label="Top Keywords"
+                // className = "text-black border-l-neutral-950 bg-slate-200"
+                class = "text-black"
+                dismissOnClick={true}
+                className="border-l-neutral-950 bg-slate-100 text-black"
+              >
+                <div className="flex flex-col space-y-2">
+                  {topKeywords.map((keyword, index) => (
+                    <Dropdown.Item
+                      key={index}
+                      onClick={() => setSearch(keyword)}
+                    >
+                      {keyword}
+                    </Dropdown.Item>
+                  ))}
+                </div>
+              </Dropdown>
+            </div>
           </div>
           <div className="flex justify-center items-center space-x-4 ml-20">
             <p>Sort News By - </p>
@@ -299,8 +328,9 @@ const latestPosts = () => {
                   )}
               </span>
             }
+            time = {news["TimeStamp"]}
             url={news["URL"]}
-            updatedOn = {news['TimeStamp']}
+            updatedOn={news["TimeStamp"]}
           />
         ))}
       </div>
