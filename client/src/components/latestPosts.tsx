@@ -3,9 +3,14 @@ import Card from "../components/card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import regional from "../../public/data/regional.json";
+import sampleText from "../../public/data/sampleText.json";
+import natural from 'natural';
+
+import { Dropdown } from 'flowbite-react';
+
 
 const latestPosts = () => {
-  const regionalNews = regional.News;
+  const regionalNews = sampleText.News;
   const [currentNumber, setNumber] = useState(0);
   const [newsData, setNewsData] = useState(regionalNews);
   const [currentSemantic, setCurrentSemantic] = useState("ALL");
@@ -59,6 +64,7 @@ const latestPosts = () => {
     });
   }
   const handleSearch = (e: any) => {
+    setSearch("")
     setCurrentSemantic(e);
   };
   const apiUrl = "http://127.0.0.1:8000/";
@@ -99,6 +105,8 @@ const latestPosts = () => {
       .catch((error) => console.error("Error fetching data: ", error));
   }, []); // The empty array means this effect runs once after initial render
 
+
+  const topKeywords = ['earthquake','crime', 'robbery', 'theft', 'assault', 'burglary', 'arson', 'fraud', 'kidnapping', 'homicide', 'violence' ,'other']
   return (
     <>
       <div className="mb-10">
@@ -111,7 +119,7 @@ const latestPosts = () => {
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
-              style={{ width: 500, height: 50 }}
+              style={{ width: 400, height: 50 }}
               type="text"
               className="input-text"
               placeholder="Search Keywords..."
@@ -120,6 +128,11 @@ const latestPosts = () => {
               className="-ml-7 mt-1 hover:cursor-pointer"
               icon={faMagnifyingGlass}
             />
+        <Dropdown label="Top Keywords" dismissOnClick={false} className="bg-black font-black">
+            {topKeywords.map((keyword, index) => (
+              <Dropdown.Item key={index} onClick={()=>setSearch(keyword)}>{keyword}</Dropdown.Item>
+            ))}
+          </Dropdown>
           </div>
           <div className="flex justify-center items-center space-x-4 ml-20">
             <p>Sort News By - </p>
@@ -235,84 +248,60 @@ const latestPosts = () => {
       </div>
       <div className="grid grid-cols-2 gap-4">
         {currentNews?.map((news) => (
-          <div>
-            <Card
-              imgUrl={news["Categories"]}
-              // Title={news["Title"]}
-              Title={<span className="font-extrabold">{news["Title"]}</span>}
-              // categories={news["Categories"]}
-              categories={
-                <span
-                  className="flex justify-center items-center"
-                  style={{
-                    backgroundColor: "#d3d3d3",
-                    color: "black",
-                    fontWeight: "bold",
-                    padding: "5px",
-                  }}
-                >
-                  {news["Categories"]}
-                  {/* {newsMap[news["Categories"]]} */}
-                </span>
-              }
-              description={
-                <span>About- {news["Description"].slice(0, 60) + "..."}</span>
-              }
-              // description={news["Description"].slice(0, 30) + '...'}
-              // negative={Math.round(parseFloat(news["Sentiment_Score"].split(' ')[1]) * 100)}
-              // neutral={Math.round(parseFloat(news["Sentiment_Score"].split(' ')[2]) * 100)}
-              // positive={100 - Math.round(parseFloat(news["Sentiment_Score"].split(' ')[1]) * 100) - Math.round(parseFloat(news["Sentiment_Score"].split(' ')[2]) * 100)}
-              negative={
-                <span style={{ textDecoration: "underline", color: "red" }}>
-                  {Math.round(
+          <Card
+            imgUrl={news["Categories"]}
+            // Title={news["Title"]}
+            Title={<span className="font-extrabold">{news["Title"]}</span>}
+            // categories={news["Categories"]}
+            categories={
+              <span
+                className="flex justify-center items-center"
+                style={{
+                  backgroundColor: "#d3d3d3",
+                  color: "black",
+                  fontWeight: "bold",
+                  padding: "5px",
+                }}
+              >
+                {news["Categories"]}
+                {/* {newsMap[news["Categories"]]} */}
+              </span>
+            }
+            description={
+              <span>About- {news["Description"].slice(0, 60) + "..."}</span>
+            }
+            // description={news["Description"].slice(0, 30) + '...'}
+            // negative={Math.round(parseFloat(news["Sentiment_Score"].split(' ')[1]) * 100)}
+            // neutral={Math.round(parseFloat(news["Sentiment_Score"].split(' ')[2]) * 100)}
+            // positive={100 - Math.round(parseFloat(news["Sentiment_Score"].split(' ')[1]) * 100) - Math.round(parseFloat(news["Sentiment_Score"].split(' ')[2]) * 100)}
+            negative={
+              <span style={{ textDecoration: "underline", color: "red" }}>
+                {Math.round(
+                  parseFloat(news["Sentiment_Score"].split(" ")[1]) * 100
+                )}
+              </span>
+            }
+            neutral={
+              <span style={{ textDecoration: "underline", color: "orange" }}>
+                {Math.round(
+                  parseFloat(news["Sentiment_Score"].split(" ")[2]) * 100
+                )}
+              </span>
+            }
+            positive={
+              <span style={{ textDecoration: "underline", color: "green" }}>
+                {100 -
+                  Math.round(
                     parseFloat(news["Sentiment_Score"].split(" ")[1]) * 100
-                  )}
-                </span>
-              }
-              neutral={
-                <span style={{ textDecoration: "underline", color: "orange" }}>
-                  {Math.round(
+                  ) -
+                  Math.round(
                     parseFloat(news["Sentiment_Score"].split(" ")[2]) * 100
                   )}
-                </span>
-              }
-              positive={
-                <span style={{ textDecoration: "underline", color: "green" }}>
-                  {100 -
-                    Math.round(
-                      parseFloat(news["Sentiment_Score"].split(" ")[1]) * 100
-                    ) -
-                    Math.round(
-                      parseFloat(news["Sentiment_Score"].split(" ")[2]) * 100
-                    )}
-                </span>
-              }
-              url={news["URL"]}
-            />
-            <div>
-              {!bookMark ? (
-                <img
-                  className="hover:cursor-pointer ml-20"
-                  onClick={() => {
-                    setBookMark(!bookMark);
-                  }}
-                  src="Bookmark.png"
-                  width={50}
-                  height={50}
-                  alt=""
-                />
-              ) : (
-                <img
-                  className="hover:cursor-pointer ml-20"
-                  onClick={() => setBookMark(!bookMark)}
-                  src="bookmarkActive.png"
-                  width={60}
-                  height={60}
-                  alt=""
-                />
-              )}
-            </div>
-          </div>
+              </span>
+            }
+            url={news["URL"]}
+            updatedOn = {news['TimeStamp']}
+          />
         ))}
       </div>
     </>

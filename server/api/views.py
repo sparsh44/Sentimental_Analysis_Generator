@@ -1,22 +1,10 @@
-import re
-import csv
-import ssl
-import nltk
-import spacy
-import torch
-import threading
-import numpy as np
+
 import pandas as pd
 import contractions
-import urllib.request
-from urllib.request import urlopen
 from keras.models import load_model
 from django.http import JsonResponse
 from nltk.tokenize import ToktokTokenizer
 from deep_translator import GoogleTranslator
-from keras.preprocessing.sequence import pad_sequences
-from transformers import AutoModelForSequenceClassification, TFAutoModelForSequenceClassification, \
-        TFDistilBertModel, DistilBertTokenizer, AutoTokenizer
 # Crawlers
 from .crawlers.AajTak import AajTak
 from .crawlers.AajTakVideo import Aajtak_Video
@@ -27,6 +15,24 @@ from .crawlers.News18 import News18
 from .crawlers.News18Punj import News18Punj
 from .crawlers.IndianExpressVideo import IndianExpressVideo
 from .crawlers.IndiaTv import IndiaTv
+from .crawlers.BhaskarChandigarh import Bhaskar
+from .crawlers.HindustanTime import Hindustan
+from .crawlers.TribuneChandigarh import Tribune
+import re
+import csv
+import ssl
+import nltk
+import spacy
+import torch
+import threading
+import pandas as pd
+import contractions
+from keras.models import load_model
+from django.http import JsonResponse
+from nltk.tokenize import ToktokTokenizer
+from deep_translator import GoogleTranslator
+from transformers import AutoModelForSequenceClassification, TFAutoModelForSequenceClassification, \
+        TFDistilBertModel, DistilBertTokenizer, AutoTokenizer, pipeline
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
@@ -104,6 +110,12 @@ def classification(row):
     return predicted_class
 
 
+emotion_model = pipeline("sentiment-analysis",model='bhadresh-savani/distilbert-base-uncased-emotion', top_k=1)
+def emotion(row):
+    prediction = emotion_model(row[:1500])
+    return prediction[0][0]['label']
+
+
 def preprocess(series):
     series = series.apply(lambda x: str(x).lower())
     def remove_contractions(row):
@@ -146,49 +158,49 @@ def translate(row):
                 return row
         except:
             return ""
-        
+    
 
 def PreProcessTheData():
     # India Today
-    df = pd.read_excel("IndiaToday.xlsx")
-    def remove_edited(row):
-        try:
-            index_of_edited_by = row.find("Edited By: ")
+    # df = pd.read_excel("IndiaToday.xlsx")
+    # def remove_edited(row):
+    #     try:
+    #         index_of_edited_by = row.find("Edited By: ")
 
-            if index_of_edited_by != -1:
-                modified_text = row[:index_of_edited_by]
-                return modified_text
-            else:
-                return row
-        except:
-            return ""
-    df.Body = df.Body.apply(lambda x: remove_edited(x)) 
-    df = df[~df['Body'].apply(lambda x: isinstance(x, (float, int)))]
-    df = df[~df['Heading'].str.contains('horoscope', case=False)]
-    df.Body = preprocess(df.Body)
-    df = df.dropna()
+    #         if index_of_edited_by != -1:
+    #             modified_text = row[:index_of_edited_by]
+    #             return modified_text
+    #         else:
+    #             return row
+    #     except:
+    #         return ""
+    # df.Body = df.Body.apply(lambda x: remove_edited(x)) 
+    # df = df[~df['Body'].apply(lambda x: isinstance(x, (float, int)))]
+    # df = df[~df['Heading'].str.contains('horoscope', case=False)]
+    # df.Body = preprocess(df.Body)
+    # df = df.dropna()
 
     # AajTak Video 
-    df2 = pd.read_excel("AajTak_Video.xlsx")
-    df2.Body=df2.Body.apply(lambda x: translate(x))
-    df2.drop('VideoText', axis=1, inplace=True)
-    df2 = df2[~df2['Body'].apply(lambda x: isinstance(x, (float, int)))]
-    df2 = df2.loc[~(df2['Heading'].str.contains("Aaj Ki Baat") | df2['Heading'].str.contains("Horoscope")
-                | df2['Heading'].str.contains("Aap Ki Adalat"))]
-    df2 = df2[~df2['Heading'].str.contains('horoscope', case=False)]
-    df2.Body = preprocess(df2.Body)
-    df2 = df2.dropna()
+    # df2 = pd.read_excel("AajTak_Video.xlsx")
+    # df2.Body=df2.Body.apply(lambda x: translate(x))
+    # df2.drop('VideoText', axis=1, inplace=True)
+    # df2 = df2[~df2['Body'].apply(lambda x: isinstance(x, (float, int)))]
+    # df2 = df2.loc[~(df2['Heading'].str.contains("Aaj Ki Baat") | df2['Heading'].str.contains("Horoscope")
+    #             | df2['Heading'].str.contains("Aap Ki Adalat"))]
+    # df2 = df2[~df2['Heading'].str.contains('horoscope', case=False)]
+    # df2.Body = preprocess(df2.Body)
+    # df2 = df2.dropna()
 
-    # Indian Express Video
-    df3 = pd.read_excel("IndianExpress_Video.xlsx")
-    df3.Body=df3.Body.apply(lambda x: translate(x))
-    df3.drop('VideoText', axis=1, inplace=True)
-    df3 = df3[~df3['Body'].apply(lambda x: isinstance(x, (float, int)))]
-    df3 = df3[~df3['Heading'].str.contains('horoscope', case=False)]
-    df3.Body = preprocess(df3.Body)
-    df3 = df3.dropna()
+    # # Indian Express Video
+    # df3 = pd.read_excel("IndianExpress_Video.xlsx")
+    # df3.Body=df3.Body.apply(lambda x: translate(x))
+    # df3.drop('VideoText', axis=1, inplace=True)
+    # df3 = df3[~df3['Body'].apply(lambda x: isinstance(x, (float, int)))]
+    # df3 = df3[~df3['Heading'].str.contains('horoscope', case=False)]
+    # df3.Body = preprocess(df3.Body)
+    # df3 = df3.dropna()
     
-    # Jagran Punjab
+    # # Jagran Punjab
     df4 = pd.read_excel("Jagran_Punjab.xlsx")
     df4 = df4[~df4['Body'].apply(lambda x: isinstance(x, (float, int)))]
     df4.Body = preprocess(df4.Body)
@@ -206,21 +218,43 @@ def PreProcessTheData():
     df4.Body = df4.Body.apply(lambda x: remove_punjab_event(x))
     df4 = df4.dropna()
 
-    # News18 Punjab
-    df5 = pd.read_excel("News18_Punjab.xlsx")
-    df5 = df5[~df5['Body'].apply(lambda x: isinstance(x, (float, int)))]
-    df5 = df5[~(df5['Body'].str.contains('dear subscriber', case=False))]
-    df5 = df5[~df5['Heading'].str.contains('horoscope', case=False)]
-    df5.Body = preprocess(df5.Body)
-    df5 = df5.dropna()
+    # # News18 Punjab
+    # df5 = pd.read_excel("News18_Punjab.xlsx")
+    # df5 = df5[~df5['Body'].apply(lambda x: isinstance(x, (float, int)))]
+    # df5 = df5[~(df5['Body'].str.contains('dear subscriber', case=False))]
+    # df5 = df5[~df5['Heading'].str.contains('horoscope', case=False)]
+    # df5.Body = preprocess(df5.Body)
+    # df5 = df5.dropna()
 
-    # AajTak
-    df6 = pd.read_excel("AajTak.xlsx")
-    df6 = df6[~df6['Body'].apply(lambda x: isinstance(x, (float, int)))]
-    df6 = df6[~(df6['Body'].str.contains('dear subscriber', case=False))]
-    df6 = df6[~df6['Heading'].str.contains('horoscope', case=False)]
-    df6.Body = preprocess(df6.Body)
-    df6 = df6.dropna()
+    # # AajTak
+    # df6 = pd.read_excel("AajTak.xlsx")
+    # df6 = df6[~df6['Body'].apply(lambda x: isinstance(x, (float, int)))]
+    # df6 = df6[~(df6['Body'].str.contains('dear subscriber', case=False))]
+    # df6 = df6[~df6['Heading'].str.contains('horoscope', case=False)]
+    # df6.Body = preprocess(df6.Body)
+    # df6 = df6.dropna()
+  
+    df10 = pd.read_excel("HindustanTime_Chandigarh.xlsx")
+    df10 = df10[~df10['Body'].apply(lambda x: isinstance(x, (float, int)))]
+    df10 = df10[~(df10['Body'].str.contains('dear subscriber', case=False))]
+    df10 = df10[~df10['Heading'].str.contains('horoscope', case=False)]
+    df10.Body = preprocess(df10.Body)
+    df10 = df10.dropna()
+    
+   
+    df11 = pd.read_excel("Tribune_Chandigarh.xlsx")
+    df11 = df11[~df11['Body'].apply(lambda x: isinstance(x, (float, int)))]
+    df11 = df11[~(df11['Body'].str.contains('dear subscriber', case=False))]
+    df11 = df11[~df11['Heading'].str.contains('horoscope', case=False)]
+    df11.Body = preprocess(df11.Body)
+    df11 = df11.dropna()
+    
+    df12 = pd.read_excel("Bhaskar_Chandigarh.xlsx")
+    df12 = df12[~df12['Body'].apply(lambda x: isinstance(x, (float, int)))]
+    df12 = df12[~(df12['Body'].str.contains('dear subscriber', case=False))]
+    df12 = df12[~df12['Heading'].str.contains('horoscope', case=False)]
+    df12.Body = preprocess(df12.Body)
+    df12 = df12.dropna()
 
     # India Today Chandigarh
     df7 = pd.read_excel("IndiaToday_Chandigarh.xlsx")
@@ -237,12 +271,13 @@ def PreProcessTheData():
         except:
             return ""
     df7.Body = df7.Body.apply(lambda x: remove_also_read(x)) 
-    df7.Body = preprocess(df.Body)
+    df7.Body = preprocess(df7.Body)
     df7.dropna(inplace=True)
 
-    df8 = pd.concat([df, df2, df3, df4, df5, df6, df7], ignore_index=True, axis=0, join='outer')
+    df8 = pd.concat([ df4, df7,df10,df11,df12], ignore_index=True, axis=0, join='outer')
     df8["Cat"]=df8["Body"].apply(lambda x:classification(str(x)))
     df8["Sentiment"] = df8.Body.apply(lambda x: sentiment(str(x)))
+    df8["Emotion"] = df8.Body.apply(lambda x: emotion(str(x)))
 
     file_name = "Final_Prepped_Data.xlsx"
     df8.to_excel(file_name, index=False)
@@ -253,20 +288,20 @@ def index (request):
     # thread1 = threading.Thread(target=AajtakVideo)
     # thread2 = threading.Thread(target=IndiaToday)
     thread3 = threading.Thread(target=IndiaToday_Chandigarh)
-    # thread4=threading.Thread(target=News18)
-    # thread7=threading.Thread(target=News18Punj)
-    # thread8=threading.Thread(target=IndiaTv)
-    # thread9=threading.Thread(target=JagranChandigarh)
+    thread4=threading.Thread(target=Tribune)
+    thread7=threading.Thread(target=Bhaskar)
+    thread8=threading.Thread(target=Hindustan)
+    thread9=threading.Thread(target=JagranChandigarh)
     # thread10=threading.Thread(target=AajTak)
 
     # Start the threads
     # thread1.start()
     # thread2.start()
     thread3.start()
-    # thread4.start()
-    # thread7.start()
-    # thread8.start()
-    # thread9.start()
+    thread4.start()
+    thread7.start()
+    thread8.start()
+    thread9.start()
     # thread10.start()
    
 
@@ -274,10 +309,10 @@ def index (request):
     # thread1.join()
     # thread2.join()
     thread3.join()
-    # thread4.join()
-    # thread7.join()
-    # thread8.join()
-    # thread9.join()
+    thread4.join()
+    thread7.join()
+    thread8.join()
+    thread9.join()
     # thread10.join()
     print("Done")
 
@@ -289,6 +324,7 @@ def index (request):
         row["Title"]=df["Heading"][ind]
         row["Description"]=df["Body"][ind]
         row["URL"]=df["URL"][ind]
+        row["TimeStamp"]=df["Updated_Date"][ind]
         row["Categories"]=df["Cat"][ind]
         row["Sentiment_Score"]=df["Sentiment"][ind]
         news.append(row)
@@ -298,4 +334,4 @@ def index (request):
     
 
     return JsonResponse({"result":"success", "News":news}, safe=False, json_dumps_params={'ensure_ascii': False})
-
+    

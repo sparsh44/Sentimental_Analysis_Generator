@@ -1,3 +1,6 @@
 cardiffnlp
 tokenizer_roberta
 distilbert_model.h5
+./api/__pycache__
+./api/crawlers/__pycache__
+./sih/__pycache__
