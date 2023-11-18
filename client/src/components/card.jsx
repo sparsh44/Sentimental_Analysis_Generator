@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import style from "../styles/card.module.css";
 import Image from "next/image";
-const card = (props: any) => {
+const card = (props) => {
   const [bookMark, setBookMark] = useState(false);
   return (
     <div className="flex justify-center items-center hover:scale-[1.01] duration-300 hover:cursor-pointer">
@@ -33,25 +33,25 @@ const card = (props: any) => {
           <div className="flex flex-col justify-center items-center">
             Negative <div>{props.negative}%</div>
           </div>
-        {!bookMark ? (
-          <img
-            className="hover:cursor-pointer ml-20"
-            onClick={() => setBookMark(!bookMark)}
-            src="Bookmark.png"
-            width={50}
-            height={50}
-            alt=""
-          />
-        ) : (
-          <img
-            className="hover:cursor-pointer ml-20"
-            onClick={() => setBookMark(!bookMark)}
-            src="bookmarkActive.png"
-            width={60}
-            height={60}
-            alt=""
-          />
-        )}
+          {!bookMark ? (
+            <img
+              className="hover:cursor-pointer ml-20"
+              onClick={() => setBookMark(!bookMark)}
+              src="Bookmark.png"
+              width={50}
+              height={50}
+              alt=""
+            />
+          ) : (
+            <img
+              className="hover:cursor-pointer ml-20"
+              onClick={() => setBookMark(!bookMark)}
+              src="bookmarkActive.png"
+              width={60}
+              height={60}
+              alt=""
+            />
+          )}
         </div>
         <div className="flex justify-center items-center pt-3">
           <a
